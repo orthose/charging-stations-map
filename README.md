@@ -64,6 +64,6 @@ avec la librairie [Pandas](https://pandas.pydata.org/).
 ```shell
 cp config-template.js config.js
 cd data
-wget https://www.data.gouv.fr/fr/datasets/r/8d9398ae-3037-48b2-be19-412c24561fbb
+wget https://static.data.gouv.fr/resources/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/20221012-082725/consolidation-etalab-schema-irve-v-2.0.3-20221011.csv
 python3 clean.py
 ```

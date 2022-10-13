@@ -18,4 +18,7 @@ df = df[
 # Conversion éventuelle des W en kW
 df["puissance_nominale"] = list(map(lambda x: int(x) if x <= 1000. else int(x / 1000.), df["puissance_nominale"]))
 
+# Tri pour affichage sur le dessus des fortes puissances
+df.sort_values(by="puissance_nominale", ascending=True, inplace=True)
+
 df.to_csv("bornes-recharge.csv", sep=",", index=False)

@@ -10,6 +10,11 @@ function sketchCircle(p) {
         p.createCanvas(mapTag.offsetWidth , mapTag.offsetHeight);
     }
 
+    p.windowResized = function() {
+        const mapTag = document.getElementById("map");
+        p.resizeCanvas(mapTag.offsetWidth , mapTag.offsetHeight);
+    }
+
     p.draw = function () {
         p.clear();
         // Affichage des bornes de recharge
@@ -21,19 +26,20 @@ function sketchCircle(p) {
             const nbPdc = row.getNum("nbre_pdc");
             // Couleur des bornes en fonction de la puissance
             p.noStroke();
-            if (puissance <= 7) p.fill(100, 255, 100, 75);
-            else if (puissance <= 22) p.fill(0, 200, 0, 75);
-            else if (puissance <= 50) p.fill(255, 100, 0, 75);
-            else if (puissance <= 150) p.fill(255, 150, 0, 75);
-            else if (puissance <= 250) p.fill(255, 100, 100, 75);
-            else p.fill(255, 0, 0, 75);
+            // Charge lente basse puissance en AC
+            if (puissance <= 22) p.fill(116,196,118, 100);
+            // Charge moyenne puissante en DC
+            else if (puissance <= 50) p.fill(49,163,84);
+            // Au-delà de 50 kW on se bat pour quelques minutes
+            // Charge rapide voire ultra-rapide en DC
+            else p.fill(0,109,44);
             // Taille des bornes en fonction du nombre de prises
             let radius;
             if (nbPdc <= 2) radius = 5.0;
             else if (nbPdc <= 4) radius = 8.0;
             else if (nbPdc <= 8) radius = 12.0;
             else if (nbPdc <= 16) radius = 15.0;
-            else radius = 12.0;
+            else radius = 17.0;
             p.circle(px, py, radius);
         }
     }
