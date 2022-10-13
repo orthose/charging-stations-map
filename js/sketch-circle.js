@@ -20,7 +20,7 @@ function sketchCircle(p) {
         // Affichage des bornes de recharge
         for (let row of table.getRows()) {
             // Projection de [longitude, latitude] vers les pixels de l'écran
-            const point = map.project([row.getNum("consolidated_longitude"), row.getNum("consolidated_latitude")]);
+            const point = map.project([row.getNum("longitude"), row.getNum("latitude")]);
             const px = point.x; const py = point.y;
             const puissance = row.getNum("puissance_nominale");
             const nbPdc = row.getNum("nbre_pdc");

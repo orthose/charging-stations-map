@@ -61,9 +61,18 @@ Le pré-traitement des données est réalisé en [Python](https://www.python.org
 avec la librairie [Pandas](https://pandas.pydata.org/).
 
 ## Mise en production
+Copier la configuration par défaut et la modifier en suivant les commentaires.
 ```shell
 cp config-template.js config.js
+```
+
+Pour exécuter le script Python de construction des données on utilise un environnement virtuel.
+```shell
 cd data
-wget https://static.data.gouv.fr/resources/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/20221012-082725/consolidation-etalab-schema-irve-v-2.0.3-20221011.csv
-python3 clean.py
+python3 -m venv ./venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+python build_data.py
+deactivate
 ```
