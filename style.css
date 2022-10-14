@@ -15,3 +15,9 @@ body {
     width: 70%; height: 100%; 
     background:rgba(255, 255, 255, 0);
 }
+
+#legend {
+    position: absolute;
+    top: 50%; left: 70%;
+    width: 30%; height: 50%;
+}
