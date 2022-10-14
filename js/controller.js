@@ -11,7 +11,8 @@ window.onload = () => {
     map.addControl(new mapboxgl.NavigationControl());
     map.on('style.load', () => {
         map.setFog({}); // Set the default atmosphere style
-        new p5(sketchCircle, "data");
-        new p5(sketchLegendCircle, "legend");
+        //new p5(sketchCircle, "data");
+        new p5(sketchLocation, "data");
+        //new p5(sketchLegendCircle, "legend");
     });
 }
