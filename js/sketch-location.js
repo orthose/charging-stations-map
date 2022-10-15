@@ -33,8 +33,6 @@ function sketchLocation(p) {
             // Projection de [longitude, latitude] vers les pixels de l'écran
             const point = map.project([row.getNum("longitude"), row.getNum("latitude")]);
             const px = point.x; const py = point.y;
-            /*const puissance = row.getNum("puissance_nominale");
-            const nbPdc = row.getNum("nbre_pdc");*/
             // Si station sélectionnée par l'utilisateur elle apparaît orange
             const img = selectedStation !== null 
                 && selectedStation[0] === row.getNum("longitude")

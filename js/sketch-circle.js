@@ -1,9 +1,9 @@
 function sketchCircle(p) {
     let table;
 
-    p.preload = function() {
+    /*p.preload = function() {
         table = p.loadTable(config.dataPath, "header");
-    }
+    }*/
 
     p.setup = function () {
         const mapTag = document.getElementById("map");
@@ -19,12 +19,12 @@ function sketchCircle(p) {
     p.draw = function () {
         p.clear();
         // Affichage des bornes de recharge
-        for (let row of table.getRows()) {
+        for (let row = 0; row < data.rawData["numRows"]; row++) {
             // Projection de [longitude, latitude] vers les pixels de l'écran
-            const point = map.project([row.getNum("longitude"), row.getNum("latitude")]);
+            const point = map.project([data.rawData["longitude"][row], data.rawData["latitude"][row]]);
             const px = point.x; const py = point.y;
-            const puissance = row.getNum("puissance_nominale");
-            const nbPdc = row.getNum("nbre_pdc");
+            const puissance = data.rawData["puissance_nominale"][row];
+            const nbPdc = data.rawData["nbre_pdc"][row];
             // Couleur des bornes en fonction de la puissance
             p.noStroke();
             // Charge lente basse puissance en AC

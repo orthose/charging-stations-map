@@ -1,4 +1,4 @@
-let map;
+let map; let data;
 let mainSketch = null;
 let legendSketch = null;
 
@@ -14,6 +14,9 @@ window.onload = () => {
     map.addControl(new mapboxgl.NavigationControl());
     map.on('style.load', () => {
         map.setFog({}); // Set the default atmosphere style
+        
+        // Chargement des données
+        data = new DataModel();
 
         // Par défaut représentation de la localisation des bornes
         document.getElementById("button-location").className = "selected";
