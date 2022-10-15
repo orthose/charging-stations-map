@@ -18,6 +18,31 @@ body {
     background:rgba(255, 255, 255, 0);
 }
 
+#controller {
+    position: absolute;
+    top: 0; left: 70%;
+    width: 30%; height: 50%;
+}
+
+#controller button {
+    border-radius: 0;
+    background: white;
+    border-top: 1px solid;
+    border-left: 1px solid;
+    border-bottom: 3px ridge;
+    border-right: 3px ridge;
+    border-color: grey; 
+}
+
+#controller button.selected, #controller button.selected:hover  {
+    background: #31a354;
+    color: white;
+}
+
+#controller button:hover {
+    background: #bae4b3;
+}
+
 #legend {
     position: absolute;
     top: 50%; left: 70%;
