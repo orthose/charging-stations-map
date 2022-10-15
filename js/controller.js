@@ -15,7 +15,7 @@ window.onload = () => {
     map.on('style.load', () => {
         map.setFog({}); // Set the default atmosphere style
         
-        // Chargement des données
+        // Chargement des données synchrone
         data = new DataModel();
 
         // Par défaut représentation de la localisation des bornes

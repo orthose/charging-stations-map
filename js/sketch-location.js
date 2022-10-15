@@ -1,14 +1,12 @@
 let stationInfo = null; 
 
 function sketchLocation(p) {
-    let table; 
     let imgStationGreen, imgStationYellow;
     let selectedStation = null;
     const ratio = 0.10;
     let w, h;
 
     p.preload = function() {
-        table = p.loadTable(config.dataPath, "header");
         imgStationGreen = p.loadImage('img/station-location-green.png');
         imgStationYellow = p.loadImage('img/station-location-orange.png');
     }
@@ -29,7 +27,7 @@ function sketchLocation(p) {
     p.draw = function () {
         p.clear();
         // Affichage des bornes de recharge
-        for (let row of table.getRows()) {
+        for (let row of data.rawTable.getRows()) {
             // Projection de [longitude, latitude] vers les pixels de l'écran
             const point = map.project([row.getNum("longitude"), row.getNum("latitude")]);
             const px = point.x; const py = point.y;
@@ -44,7 +42,7 @@ function sketchLocation(p) {
 
     p.mouseClicked = function() {
         if (p.mouseButton === p.LEFT) {
-            for (let row of table.getRows()) {
+            for (let row of data.rawTable.getRows()) {
                 const point = map.project([row.getNum("longitude"), row.getNum("latitude")]);
                 // Station sélectionnée par l'utilisateur
                 if (point.x - (w / 2) <= p.mouseX 
