@@ -67,7 +67,7 @@ window.onload = () => {
         }
         map.on("zoom", zoomCallback);
         
-        // Contrôleur pour l'interaction utilisateur
+        // Choix de l'onglet de visualisation
         document.getElementById("visu-choice").addEventListener("click", function(event) {
             const currentId = document.getElementsByClassName("selected")[0].id;
             if (event.target.tagName === "BUTTON" && event.target.id !== currentId) {
@@ -94,6 +94,45 @@ window.onload = () => {
                     legendSketch = null;
                 }
             }
+        });
+
+        // Contrôles pour les filtres
+        let dates = data.rawTable.map(x => x.date_mise_en_service);
+        dates = dates.sort((x, y) => {
+            const t1 = new Date(x).getTime();
+            const t2 = new Date(y).getTime();
+            if (t1 > t2) return 1;
+            else if (t2 < t2) return - 1;
+            else return 0;
+        });
+        const minYear = (new Date(dates[0])).getFullYear();
+        const maxYear = (new Date(dates[dates.length-1])).getFullYear();
+
+        // https://refreshless.com/nouislider/
+        let dateSlider = document.getElementById('slider-date');
+        dateSlider.style.margin = "40px 23px 10px 23px";
+        noUiSlider.create(dateSlider, {
+            // Create two timestamps to define a range.
+            range: {
+                min: minYear,
+                max: maxYear
+            },
+            // Couleur entre les curseurs
+            connect: true,
+            // Pas de une année
+            step: 1,
+            // Two more timestamps indicate the handle starting positions.
+            start: [minYear, maxYear],
+            // Indicateur de l'année sélectionnée
+            tooltips: true,
+            // Pas de décimales
+            format: {
+                to: (v) => v | 0,
+                from: (v) => v | 0
+            }
+        });
+        dateSlider.noUiSlider.on("update", function(values, handle) {
+            filterYear(values[0], values[1]);
         });
     });
 }

@@ -55,9 +55,10 @@ Plus la zone est grande plus elle doit être mise en évidence car c'est une zon
 
 ## Dépendances
 La visualisation est une application web réalisé HTML/CSS et [JavaScript](https://developer.mozilla.org/fr/docs/Learn/JavaScript/First_steps/What_is_JavaScript).
-Pour l'affichage de la carte de France j'utilise [Mapbox](https://www.mapbox.com/).
-Pour l'affichage des données j'utilise [p5.js](https://p5js.org/).
-Le pré-traitement des données est réalisé en [Python](https://www.python.org/) 
+* Pour l'affichage de la carte de France j'utilise [Mapbox](https://www.mapbox.com/).
+* Pour l'affichage des données j'utilise [p5.js](https://p5js.org/).
+* Les range sliders sont fournis par [noUiSlider](https://github.com/leongersen/noUiSlider/releases).
+* Le pré-traitement des données est réalisé en [Python](https://www.python.org/) 
 avec la librairie [Pandas](https://pandas.pydata.org/).
 
 ## Mise en production
@@ -74,6 +75,5 @@ source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 python build_data.py
-python knn.py
 deactivate
 ```
