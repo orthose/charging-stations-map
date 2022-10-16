@@ -1,25 +1,55 @@
 // En raison de problèmes avec this dans la Promise
 // Je préfère utiliser un objet global plutôt qu'une classe
 const data = {
-    rawTable: null,
-    stations: [],
-    clusters: [],
+    rawTable: null, // Table à laquelle accède les sketchs
+    privateRawTable: null, // Table de référence à ne pas lire
+    stations: [], // [[longitude, latitude]...]
+    clusters: [], // [{lng:,lat:,sum:,distMin:,distMax:,distAvg:,distStd:}...]
 };
 
 // Chargement asynchrone des données
 function loadData() {
     new p5(function(p) {
         p.loadTable(config.dataPath, "csv", "header", function(rawTable) {
-            data.rawTable = rawTable;
-            const longitude = rawTable.getColumn("longitude").map(x => parseFloat(x));
-            const latitude = rawTable.getColumn("latitude").map(x => parseFloat(x));
-            for (let i = 0; i < rawTable.getRowCount(); i++) {
-                data.stations.push([longitude[i], latitude[i]]);
-            }
+            // Il est préférable de se passer de l'interface tabulaire
+            // pour réaliser les filtres sur des objets Javascript
+            const numericalColumns = ["longitude", "latitude", "puissance_nominale", "nbre_pdc"];
+            data.rawTable = rawTable.getArray().map(function(row) {
+                const res = {};
+                rawTable.columns.forEach(function(colName, i) {
+                    if (numericalColumns.indexOf(colName) !== -1) {
+                        res[colName] = parseFloat(row[i]);
+                    } else {
+                        res[colName] = row[i];
+                    }
+                });
+                return res;
+            });
+            // Table de référence à ne pas modifier
+            data.privateRawTable = [...data.rawTable];
+            loadStations();
             computeClusters();
             p.remove();
         });
     });
+}
+
+function loadStations() {
+    data.stations = [];
+    const longitude = data.rawTable.map(x => x.longitude);
+    const latitude = data.rawTable.map(x => x.latitude);
+    for (let i = 0; i < data.rawTable.length; i++) {
+        data.stations.push([longitude[i], latitude[i]]);
+    }
+}
+
+function filterYear(startYear, stopYear) {
+    data.rawTable = data.privateRawTable.filter(x => {
+        const year = parseInt((new Date(x.date_mise_en_service)).getFullYear());
+        return startYear <= year && year <= stopYear; 
+    });
+    loadStations();
+    computeClusters();
 }
 
 // Découpage des clusters pré-calculés en fonction de distMax

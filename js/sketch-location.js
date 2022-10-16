@@ -27,14 +27,14 @@ function sketchLocation(p) {
     p.draw = function () {
         p.clear();
         // Affichage des bornes de recharge
-        for (let row of data.rawTable.getRows()) {
+        for (let row of data.rawTable) {
             // Projection de [longitude, latitude] vers les pixels de l'écran
-            const point = map.project([row.getNum("longitude"), row.getNum("latitude")]);
+            const point = map.project([row.longitude, row.latitude]);
             const px = point.x; const py = point.y;
             // Si station sélectionnée par l'utilisateur elle apparaît orange
             const img = selectedStation !== null 
-                && selectedStation[0] === row.getNum("longitude")
-                && selectedStation[1] === row.getNum("latitude") 
+                && selectedStation[0] === row.longitude
+                && selectedStation[1] === row.latitude 
                 ? imgStationYellow : imgStationGreen;
             p.image(img, px - (w / 2), py - h, w, h);
         }
@@ -42,14 +42,14 @@ function sketchLocation(p) {
 
     p.mouseClicked = function() {
         if (p.mouseButton === p.LEFT) {
-            for (let row of data.rawTable.getRows()) {
-                const point = map.project([row.getNum("longitude"), row.getNum("latitude")]);
+            for (let row of data.rawTable) {
+                const point = map.project([row.longitude, row.latitude]);
                 // Station sélectionnée par l'utilisateur
                 if (point.x - (w / 2) <= p.mouseX 
                     && p.mouseX <= point.x + (w / 2)
                     && point.y - h <= p.mouseY && p.mouseY <= point.y) {
                     // Variable utilisée par draw
-                    selectedStation = [row.getNum("longitude"), row.getNum("latitude")];
+                    selectedStation = [row.longitude, row.latitude];
                     // Récupération des infos de la station et affichage en légende
                     legendLocation(row);
                     break;
@@ -83,7 +83,7 @@ function legendLocation(row) {
         let th = document.createElement("th");
         th.innerHTML = thName;
         let td = document.createElement("td");
-        td.innerHTML = row.getString(colName);
+        td.innerHTML = row[colName];
         tr.appendChild(th); tr.appendChild(td);
         tableLegend.appendChild(tr);
     }

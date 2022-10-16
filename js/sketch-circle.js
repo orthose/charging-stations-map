@@ -13,12 +13,12 @@ function sketchCircle(p) {
     p.draw = function () {
         p.clear();
         // Affichage des bornes de recharge
-        for (let row of data.rawTable.getRows()) {
+        for (let row of data.rawTable) {
             // Projection de [longitude, latitude] vers les pixels de l'écran
-            const point = map.project([row.getNum("longitude"), row.getNum("latitude")]);
+            const point = map.project([row.longitude, row.latitude]);
             const px = point.x; const py = point.y;
-            const puissance = row.getNum("puissance_nominale");
-            const nbPdc = row.getNum("nbre_pdc");
+            const puissance = row.puissance_nominale;
+            const nbPdc = row.nbre_pdc;
             // Couleur des bornes en fonction de la puissance
             p.noStroke();
             // Charge lente basse puissance en AC

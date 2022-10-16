@@ -1,3 +1,5 @@
+// Ajouter ici les variables pour gérer les choses à afficher interactivement
+
 function sketchAgg(p) {
     p.setup = function () {
         const mapTag = document.getElementById("map");
