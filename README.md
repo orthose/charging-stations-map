@@ -74,5 +74,6 @@ source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 python build_data.py
+python knn.py
 deactivate
 ```

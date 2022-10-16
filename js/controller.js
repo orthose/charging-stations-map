@@ -1,4 +1,4 @@
-let map; let data;
+let map;
 let mainSketch = null;
 let legendSketch = null;
 
@@ -14,9 +14,6 @@ window.onload = () => {
     map.addControl(new mapboxgl.NavigationControl());
     map.on('style.load', () => {
         map.setFog({}); // Set the default atmosphere style
-        
-        // Chargement des données synchrone
-        data = new DataModel();
 
         // Par défaut représentation de la localisation des bornes
         document.getElementById("button-location").className = "selected";
@@ -41,6 +38,10 @@ window.onload = () => {
                 else if (event.target.id === "button-circle") {
                     mainSketch = new p5(sketchCircle, "data");
                     legendSketch = new p5(sketchLegendCircle, "legend");
+                }
+                else if (event.target.id === "button-agg") {
+                    mainSketch = new p5(sketchAgg, "data");
+                    legendSketch = null;
                 }
             }
         });
