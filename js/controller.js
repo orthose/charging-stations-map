@@ -36,12 +36,25 @@ window.onload = () => {
         mainSketch = new p5(sketchLocation, "data");
 
         // Si on zoom il faut recalculer les clusters pour l'agrégation
+        let lastZoom = 5;
         map.on("zoom", () => {
-            console.log(map.getZoom());
+            const currentZoom = Math.floor(map.getZoom());
+            // Calcul des clusters par rapport au zoom avec un pas de 1
+            if (lastZoom+1 <= currentZoom || currentZoom <= lastZoom) {
+                let distMax = 100_000;
+                if (currentZoom === 5) distMax = 100_000;
+                else if (currentZoom === 6) distMax = 50_000;
+                else if (currentZoom === 7) distMax = 30_000;
+                // Afficher la localisation des bornes au-delà du niveau de zoom 8
+                //else if (currentZoom >= 8) {}
+                
+                computeClusters(distMax=distMax);
+                lastZoom = currentZoom;
+            } 
         });
         
         // Contrôleur pour l'interaction utilisateur
-        document.getElementById("controller").addEventListener("click", function(event) {
+        document.getElementById("visu-choice").addEventListener("click", function(event) {
             const currentId = document.getElementsByClassName("selected")[0].id;
             if (event.target.tagName === "BUTTON" && event.target.id !== currentId) {
                 // Libération de la représentation précédente
