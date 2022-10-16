@@ -2,63 +2,71 @@
 // Je préfère utiliser un objet global plutôt qu'une classe
 const data = {
     rawTable: null,
-    knnArray: [],
+    stations: [],
     clusters: [],
 };
 
 // Chargement asynchrone des données
 function loadData() {
     new p5(function(p) {
-        new Promise((resolve, _) => {
-            p.loadTable(config.dataPathRawTable, "csv", "header", function(rawTable) {
-                console.log("rawTable loaded");
-                data.rawTable = rawTable; resolve();
-            });
-        }).then(_ => {
-            p.loadTable(config.dataPathKNNTable, "csv", "header", function(knnTable) {
-                p.remove();
-                data.knnArray = knnTable.getArray();
-                console.log("knnArray loaded");
-                computeClusters();
-                console.log("clusters computed")
-            });
+        p.loadTable(config.dataPath, "csv", "header", function(rawTable) {
+            data.rawTable = rawTable;
+            const longitude = rawTable.getColumn("longitude").map(x => parseFloat(x));
+            const latitude = rawTable.getColumn("latitude").map(x => parseFloat(x));
+            for (let i = 0; i < rawTable.getRowCount(); i++) {
+                data.stations.push([longitude[i], latitude[i]]);
+            }
+            computeClusters();
+            p.remove();
         });
     });
 }
 
-function computeClusters(distMax=50_000) {
-    data.clusters = [];
-    const seenStations = new Set();
-    let currentStation = [data.knnArray[0][0], data.knnArray[0][1]];
-    seenStations.add(currentStation.toString());
-    let currentCluster = [[...currentStation]];
+// Découpage des clusters pré-calculés en fonction de distMax
+// et calcul des centroïdes selon la moyenne des clusters
+function computeClusters(distMax=100_000) {
+    // Calcul des clusters selon l'algorithme des plus proches voisins
+    const knnClusters = computeKNNClusters(data.stations, distMax=distMax);
 
-    data.knnArray.forEach(function([longitude, latitude, 
-        neighborLongitude, neighborLatitude, distance]) {
-        distance = parseFloat(distance);
-        
-        // Est-ce que l'on change de station ? 
-        if (!(currentStation[0] === longitude && currentStation[1] === latitude)) {
-            currentStation = [longitude, latitude];
-            seenStations.add(currentStation.toString());
-            // Le centroïde du cluster sera la moyenne des stations
-            const cluster = currentCluster.reduce(function(acc, x) {
-                acc.longitude += parseFloat(x[0]);
-                acc.latitude += parseFloat(x[1]);
-                acc.sum += 1; 
-                return acc;
-            }, {longitude: 0, latitude: 0, sum: 0});
-            cluster.longitude /= cluster.sum;
-            cluster.latitude /= cluster.sum;
-            data.clusters.push(cluster);
-            currentCluster = [[...currentStation]];
-        }
-
-        // Est-ce qu'on a le droit d'ajouter cette station au cluster courant ?
-        if (distance <= distMax && !seenStations.has([neighborLongitude, neighborLatitude].toString())) {
-            currentCluster.push([neighborLongitude, neighborLatitude]);
-        }
+    // Ensemble des stations associées à chaque cluster
+    const clustersStations = knnClusters.map(function(station) {
+        const cluster = [[station.lon, station.lat]]
+            .concat(station.neighbors.map(
+                neighbor => [neighbor.lon, neighbor.lat]));
+        return cluster;
     });
+
+    // Calcul des centroïdes selon la moyenne des clusters
+    let clustersCenter = clustersStations.map(function(cluster) {
+        const center = cluster.reduce(function(acc, x) {
+            acc.lon += x[0];
+            acc.lat += x[1];
+            return acc;
+        }, {lon: 0, lat: 0});
+        center.sum = cluster.length;
+        center.lon /= cluster.length;
+        center.lat /= cluster.length;
+        return center;
+    });
+
+    // Calcul des distances par rapport au centroïde
+    clustersCenter = clustersCenter.map(function(cluster, i) {
+        const distances = clustersStations[i].map(station => 
+            haversine(cluster.lon, cluster.lat, station[0], station[1]));
+        // Distance minimale
+        cluster.distMin = Math.min(...distances);
+        // Distance maximale
+        cluster.distMax = Math.max(...distances);
+        // Distance moyenne
+        cluster.distAvg = distances.reduce((acc, x) => acc + x, 0) / distances.length;
+        // Calcul de l'écart-type
+        cluster.distStd = Math.sqrt((1 / distances.length) 
+            * distances.reduce((acc, x) => acc + Math.pow(x - cluster.distAvg, 2), 0)
+        );
+        return cluster;
+    });
+
+    data.clusters = clustersCenter;
 }
 
 loadData();
