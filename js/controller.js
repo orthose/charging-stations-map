@@ -38,17 +38,17 @@ window.onload = () => {
         // Si on zoom il faut recalculer les clusters pour l'agrégation
         let lastZoom = 5;
         map.on("zoom", () => {
-            const currentZoom = Math.floor(map.getZoom());
+            let currentZoom = map.getZoom();
             // Calcul des clusters par rapport au zoom avec un pas de 1
             if (lastZoom+1 <= currentZoom || currentZoom <= lastZoom) {
+                currentZoom = Math.floor(currentZoom);
                 let distMax = 100_000;
                 if (currentZoom === 5) distMax = 100_000;
                 else if (currentZoom === 6) distMax = 50_000;
                 else if (currentZoom === 7) distMax = 30_000;
                 // Afficher la localisation des bornes au-delà du niveau de zoom 8
                 //else if (currentZoom >= 8) {}
-                
-                computeClusters(distMax=distMax);
+                if (currentZoom < 8) computeClusters(distMax=distMax);
                 lastZoom = currentZoom;
             } 
         });

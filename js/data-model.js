@@ -24,9 +24,10 @@ function loadData() {
 
 // Découpage des clusters pré-calculés en fonction de distMax
 // et calcul des centroïdes selon la moyenne des clusters
-function computeClusters(distMax=100_000) {
+// La fonction est asynchrone car les calculs peuvent être longs.
+async function computeClusters(distMax=100_000) {
     // Calcul des clusters selon l'algorithme des plus proches voisins
-    const knnClusters = computeKNNClusters(data.stations, distMax=distMax);
+    const knnClusters = await computeKNNClusters(data.stations, distMax=distMax);
 
     // Ensemble des stations associées à chaque cluster
     const clustersStations = knnClusters.map(function(station) {
