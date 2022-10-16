@@ -18,10 +18,12 @@ def haversine(lon1, lat1, lon2, lat2):
     return 2*R*math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
-# Algorithme de calcul des plus proches voisins
-# Complexité quadratique O(n^2)
-def compute_knn(df, k=None, dist_max=100_000):
+def compute_knn_clusters(df, k=None, dist_max=100_000):
     """
+    Algorithme de calcul des plus proches voisins adapté pour 
+    pré-calculer les clusters de station à la maille de 100 km
+    Complexité quadratique O(n^2) dans le pire des cas
+
     :param df: Dataframe contenant les colonnes latitude et longitude
     :param k: Nombre maximum de voisins
     :dist_max: Distance maximale entre 2 bornes (en mètres)
@@ -32,55 +34,41 @@ def compute_knn(df, k=None, dist_max=100_000):
     assert dist_max is None or dist_max > 0
     latitude = df["latitude"].tolist()
     longitude = df["longitude"].tolist()
-    res = []
+    res = []; seen = set()
+
     for i in tqdm(range(len(latitude))):
+        # Une station ne peut appartenir qu'à un seul cluster
+        if (longitude[i], latitude[i]) in seen: continue
+        seen.add((longitude[i], latitude[i]))
 
         # Borne courante pour laquelle on cherche des voisins
         res.append({"lng": longitude[i], "lat": latitude[i], "neighbors": []})
+
         for j in range(i + 1, len(latitude)):
+            # Une station ne peut appartenir qu'à un seul cluster
+            if (longitude[j], latitude[j]) in seen: continue
 
             # Calcul de la distance sphérique
             distance = haversine(longitude[i], latitude[i], longitude[j], latitude[j])
             
             # Enregistrement du voisin si assez proche
             if dist_max is not None and 0 < distance <= dist_max:
-                res[i]["neighbors"].append({"lng": longitude[j], "lat": latitude[j], "dist": distance})
+                seen.add((longitude[j], latitude[j]))
+                res[len(res)-1]["neighbors"].append({"lng": longitude[j], "lat": latitude[j], "dist": distance})
 
         # Tri croissant selon la distance
-        res[i]["neighbors"].sort(key=lambda x: x["dist"])
+        res[len(res)-1]["neighbors"].sort(key=lambda x: x["dist"])
 
         # On garde les k plus proches voisins
         if k is not None:
-            res[i]["neighbors"] = res[i]["neighbors"][0:k]
+            res[len(res)-1]["neighbors"] = res[len(res)-1]["neighbors"][0:k]
 
     return res
 
 
 # Calcul des plus proches voisins
 df = pd.read_csv("bornes-recharge.csv", sep=",")
-knn = compute_knn(df)
-
-# Transformation en données tabulaires pour réduire la taille
-list_knn = []
-for x in knn:
-    for y in x["neighbors"]:
-        list_knn.append([x["lng"], x["lat"], y["lng"], y["lat"], y["dist"]])
-
-df_knn = pd.DataFrame(list_knn, columns=["longitude", "latitude", "neighbor_longitude", "neighbor_latitude", "distance"])
-df_knn.drop_duplicates(inplace=True)
-df_knn.to_csv("bornes-voisines.csv", sep=",", index=False)
-
-# Version JSON
-"""
-list_knn = []
-for x in knn:
-    last = (x['lng'], x['lat'])
-    cluster = [[x["lng"], x["lat"]]]
-    for y in x["neighbors"]:
-        if last != (y['lng'], y['lat']): 
-            cluster.append([y["lng"], y["lat"], y["dist"]])
-    list_knn.append(cluster)
+knn = compute_knn_clusters(df)
 
 with open("bornes-voisines.json", 'w') as f:
-    json.dump(list_knn, f)
-"""
+    json.dump(knn, f)
