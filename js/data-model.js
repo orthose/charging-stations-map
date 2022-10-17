@@ -43,15 +43,6 @@ data.loadStations = function() {
     }
 }
 
-data.filterYear = function(startYear, stopYear) {
-    data.rawTable = data.privateRawTable.filter(x => {
-        const year = parseInt((new Date(x.date_mise_en_service)).getFullYear());
-        return startYear <= year && year <= stopYear; 
-    });
-    data.loadStations();
-    data.computeClusters();
-}
-
 // Découpage des clusters pré-calculés en fonction de distMax
 // et calcul des centroïdes selon la moyenne des clusters
 data.computeClusters = function(distMax=100_000) {
@@ -65,6 +56,21 @@ data.computeClusters = function(distMax=100_000) {
     } else {
         data.clusters = computeClusters(data.stations, distMax);
     }
+}
+
+data.filterYear = function(startYear, stopYear) {
+    data.rawTable = data.privateRawTable.filter(x => {
+        const year = parseInt((new Date(x.date_mise_en_service)).getFullYear());
+        return startYear <= year && year <= stopYear; 
+    });
+    data.loadStations(); data.computeClusters();
+}
+
+data.filterPuissance = function(startPuissance, stopPuissance) {
+    data.rawTable = data.privateRawTable.filter(x => {
+        return startPuissance <= x.puissance_nominale && x.puissance_nominale <= stopPuissance; 
+    });
+    data.loadStations(); data.computeClusters();
 }
 
 data.loadData();

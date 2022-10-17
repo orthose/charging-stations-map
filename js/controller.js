@@ -110,7 +110,7 @@ window.onload = () => {
 
         // https://refreshless.com/nouislider/
         let dateSlider = document.getElementById('slider-date');
-        dateSlider.style.margin = "40px 23px 10px 23px";
+        dateSlider.style.margin = "40px 35px 10px 23px";
         noUiSlider.create(dateSlider, {
             // Create two timestamps to define a range.
             range: {
@@ -119,9 +119,8 @@ window.onload = () => {
             },
             // Couleur entre les curseurs
             connect: true,
-            // Pas de une année
+            // Pas de 1 an
             step: 1,
-            // Two more timestamps indicate the handle starting positions.
             start: [minYear, maxYear],
             // Indicateur de l'année sélectionnée
             tooltips: true,
@@ -134,5 +133,24 @@ window.onload = () => {
         dateSlider.noUiSlider.on("update", function(values, handle) {
             data.filterYear(values[0], values[1]);
         });
+
+        let puissances = data.rawTable.map(x => x.puissance_nominale);
+        const minPuissance = Math.min(...puissances);
+        const maxPuissance = Math.max(...puissances);
+
+        let puissanceSlider = document.getElementById('slider-puissance');
+        puissanceSlider.style.margin = "48px 35px 10px 23px";
+        noUiSlider.create(puissanceSlider, {
+            start: [minPuissance, maxPuissance],
+            range: {"min": minPuissance, "max": maxPuissance,
+                "10%":3, "20%":7, "30%":11, "40%":22, "50%":50, "60%":100, "70%":150, "80%":250, "90%":350 },
+            connect: true, snap: true, // Faire des sauts entre valeur  
+            tooltips: {to: x => x + " kW", from: x => Number(x.split(" ")[0])},
+            format: {to: (v) => v | 0, from: (v) => v | 0}
+        });
+        puissanceSlider.noUiSlider.on("update", function(values, handle) {
+            data.filterPuissance(values[0], values[1]);
+        });
+
     });
 }
