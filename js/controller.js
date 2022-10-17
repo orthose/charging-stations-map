@@ -61,11 +61,11 @@ window.onload = () => {
                     mainSketch.remove();
                     mainSketch = new p5(sketchLocation, "data");
                 }
-                if (currentZoom < 8) computeClusters(distMax=distMax);
+                if (currentZoom < 8) {data.computeClusters(distMax=distMax);}
                 lastZoom = currentZoom;
             }
         }
-        map.on("zoom", zoomCallback);
+        map.on("zoom", function() {zoomCallback();});
         
         // Choix de l'onglet de visualisation
         document.getElementById("visu-choice").addEventListener("click", function(event) {
@@ -132,7 +132,7 @@ window.onload = () => {
             }
         });
         dateSlider.noUiSlider.on("update", function(values, handle) {
-            filterYear(values[0], values[1]);
+            data.filterYear(values[0], values[1]);
         });
     });
 }

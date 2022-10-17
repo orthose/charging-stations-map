@@ -1,14 +1,14 @@
 // En raison de problèmes avec this dans la Promise
 // Je préfère utiliser un objet global plutôt qu'une classe
 const data = {
-    rawTable: null, // Table à laquelle accède les sketchs
-    privateRawTable: null, // Table de référence à ne pas lire
+    rawTable: [], // Table à laquelle accède les sketchs
+    privateRawTable: [], // Table de référence à ne pas lire
     stations: [], // [[longitude, latitude]...]
     clusters: [], // [{lng:,lat:,sum:,distMin:,distMax:,distAvg:,distStd:}...]
 };
 
 // Chargement asynchrone des données
-function loadData() {
+data.loadData = function() {
     new p5(function(p) {
         p.loadTable(config.dataPath, "csv", "header", function(rawTable) {
             // Il est préférable de se passer de l'interface tabulaire
@@ -27,14 +27,14 @@ function loadData() {
             });
             // Table de référence à ne pas modifier
             data.privateRawTable = [...data.rawTable];
-            loadStations();
-            computeClusters();
+            data.loadStations();
+            data.computeClusters();
             p.remove();
         });
     });
 }
 
-function loadStations() {
+data.loadStations = function() {
     data.stations = [];
     const longitude = data.rawTable.map(x => x.longitude);
     const latitude = data.rawTable.map(x => x.latitude);
@@ -43,21 +43,20 @@ function loadStations() {
     }
 }
 
-function filterYear(startYear, stopYear) {
+data.filterYear = function(startYear, stopYear) {
     data.rawTable = data.privateRawTable.filter(x => {
         const year = parseInt((new Date(x.date_mise_en_service)).getFullYear());
         return startYear <= year && year <= stopYear; 
     });
-    loadStations();
-    computeClusters();
+    data.loadStations();
+    data.computeClusters();
 }
 
 // Découpage des clusters pré-calculés en fonction de distMax
 // et calcul des centroïdes selon la moyenne des clusters
-// La fonction est asynchrone car les calculs peuvent être longs.
-async function computeClusters(distMax=100_000) {
+data.computeClusters = function(distMax=100_000) {
     // Calcul des clusters selon l'algorithme des plus proches voisins
-    const knnClusters = await computeKNNClusters(data.stations, distMax=distMax);
+    const knnClusters = computeKNNClusters(data.stations, distMax=distMax);
 
     // Ensemble des stations associées à chaque cluster
     const clustersStations = knnClusters.map(function(station) {
@@ -100,4 +99,4 @@ async function computeClusters(distMax=100_000) {
     data.clusters = clustersCenter;
 }
 
-loadData();
+data.loadData();
