@@ -16,44 +16,48 @@ const data = {
 
 // Chargement asynchrone des données
 data.loadData = function() {
-    new p5(function(p) {
-        p.loadTable(config.dataPath, "csv", "header", function(rawTable) {
-            // Il est préférable de se passer de l'interface tabulaire
-            // pour réaliser les filtres sur des objets Javascript
-            const numericalColumns = ["longitude", "latitude", "puissance_nominale", "nbre_pdc"];
-            data.rawTable = rawTable.getArray().map(function(row) {
-                const res = {};
-                rawTable.columns.forEach(function(colName, i) {
-                    if (numericalColumns.indexOf(colName) !== -1) {
-                        res[colName] = parseFloat(row[i]);
-                    } else {
-                        res[colName] = row[i];
-                    }
+    return new Promise((resolve, reject) => {
+        new p5(function(p) {
+            p.loadTable(config.dataPath, "csv", "header", function(rawTable) {
+                
+                // Il est préférable de se passer de l'interface tabulaire
+                // pour réaliser les filtres sur des objets Javascript
+                const numericalColumns = ["longitude", "latitude", "puissance_nominale", "nbre_pdc"];
+                data.rawTable = rawTable.getArray().map(function(row) {
+                    const res = {};
+                    rawTable.columns.forEach(function(colName, i) {
+                        if (numericalColumns.indexOf(colName) !== -1) {
+                            res[colName] = parseFloat(row[i]);
+                        } else {
+                            res[colName] = row[i];
+                        }
+                    });
+                    return res;
                 });
-                return res;
-            });
-            
-            // Initialisation des filtres
-            let dates = data.rawTable.map(x => x.date_mise_en_service);
-            dates = dates.sort((x, y) => {
-            const t1 = new Date(x).getTime();
-            const t2 = new Date(y).getTime();
-                if (t1 > t2) return 1;
-                else if (t2 < t2) return - 1;
-                else return 0;
-            });
-            data.filters.startYear = (new Date(dates[0])).getFullYear();
-            data.filters.stopYear = (new Date(dates[dates.length-1])).getFullYear();
+                
+                // Initialisation des filtres
+                let dates = data.rawTable.map(x => x.date_mise_en_service);
+                dates = dates.sort((x, y) => {
+                const t1 = new Date(x).getTime();
+                const t2 = new Date(y).getTime();
+                    if (t1 > t2) return 1;
+                    else if (t2 < t2) return - 1;
+                    else return 0;
+                });
+                data.filters.startYear = (new Date(dates[0])).getFullYear();
+                data.filters.stopYear = (new Date(dates[dates.length-1])).getFullYear();
 
-            let puissances = data.rawTable.map(x => x.puissance_nominale);
-            data.filters.startPuissance = Math.min(...puissances);
-            data.filters.stopPuissance = Math.max(...puissances);
-            
-            // Table de référence à ne pas modifier
-            data.privateRawTable = [...data.rawTable];
-            data.loadStations();
-            data.computeClusters();
-            p.remove();
+                let puissances = data.rawTable.map(x => x.puissance_nominale);
+                data.filters.startPuissance = Math.min(...puissances);
+                data.filters.stopPuissance = Math.max(...puissances);
+                
+                // Table de référence à ne pas modifier
+                data.privateRawTable = [...data.rawTable];
+                data.loadStations();
+                data.computeClusters();
+                p.remove();
+                resolve();
+            });
         });
     });
 }
@@ -97,5 +101,3 @@ data.applyFilters = function() {
             && filterBoolCol(x, "gratuit", data.filters.gratuit);
     }); data.loadStations(); data.computeClusters();
 }
-
-data.loadData();

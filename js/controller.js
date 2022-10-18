@@ -28,163 +28,166 @@ window.onload = () => {
         unit: 'metric'
     });
     map.addControl(scale);
+
+    // Chargement de la carte
     map.on('style.load', () => {
         map.setFog({}); // Set the default atmosphere style
+        // Chargement des données
+        data.loadData().then(_ => {
+            // Par défaut représentation de la localisation des bornes
+            document.getElementById("button-location").className = "selected";
+            mainSketch = new p5(sketchLocation, "data");
 
-        // Par défaut représentation de la localisation des bornes
-        document.getElementById("button-location").className = "selected";
-        mainSketch = new p5(sketchLocation, "data");
+            // Si on zoom il faut recalculer les clusters pour l'agrégation
+            let lastZoom = 5;
+            let sketchLocationIsLoaded = false;
 
-        // Si on zoom il faut recalculer les clusters pour l'agrégation
-        let lastZoom = 5;
-        let sketchLocationIsLoaded = false;
-
-        function zoomCallback(enforce=false) {
-            const sketchAggIsSelected = document.getElementById("button-agg").className === "selected";
-            let currentZoom = map.getZoom();
-            // Calcul des clusters par rapport au zoom avec un pas de 1
-            if ((sketchAggIsSelected && (lastZoom+1 <= currentZoom || currentZoom <= lastZoom)) || enforce) {
-                // On a suffisamment dézoomé pour afficher l'agrégation
-                if (currentZoom <= lastZoom && lastZoom >= 8) {
-                    sketchLocationIsLoaded = false;
-                    mainSketch.remove();
-                    mainSketch = new p5(sketchAgg, "data");
-                }
-                currentZoom = Math.floor(currentZoom);
-                let distMax = 100_000;
-                if (currentZoom === 5) distMax = 100_000;
-                else if (currentZoom === 6) distMax = 50_000;
-                else if (currentZoom === 7) distMax = 30_000;
-                // Afficher la localisation des bornes au-delà du niveau de zoom 8
-                else if (currentZoom >= 8 && !sketchLocationIsLoaded) {
-                    sketchLocationIsLoaded = true;
-                    mainSketch.remove();
-                    mainSketch = new p5(sketchLocation, "data");
-                }
-                if (currentZoom < 8) {data.computeClusters(distMax=distMax);}
-                lastZoom = currentZoom;
-            }
-        }
-        map.on("zoom", function() {zoomCallback();});
-        
-        // Choix de l'onglet de visualisation
-        document.getElementById("visu-choice").addEventListener("click", function(event) {
-            const currentId = document.getElementsByClassName("selected")[0].id;
-            if (event.target.tagName === "BUTTON" && event.target.id !== currentId) {
-                // Libération de la représentation précédente
-                document.getElementsByClassName("selected")[0].className = "";
-                document.getElementById(event.target.id).className = "selected";
-                if (mainSketch !== null) mainSketch.remove();
-                if (legendSketch !== null) legendSketch.remove();
-                document.getElementById("legend").innerHTML = "";
-                
-                // Changement de représentation
-                if (event.target.id === "button-location") {
-                    mainSketch = new p5(sketchLocation, "data");
-                    legendSketch = null;
-                }
-                else if (event.target.id === "button-circle") {
-                    mainSketch = new p5(sketchCircle, "data");
-                    legendSketch = new p5(sketchLegendCircle, "legend");
-                }
-                else if (event.target.id === "button-agg") {
-                    mainSketch = new p5(sketchAgg, "data");
-                    sketchLocationIsLoaded = false;
-                    zoomCallback(enforce=true);
-                    legendSketch = null;
+            function zoomCallback(enforce=false) {
+                const sketchAggIsSelected = document.getElementById("button-agg").className === "selected";
+                let currentZoom = map.getZoom();
+                // Calcul des clusters par rapport au zoom avec un pas de 1
+                if ((sketchAggIsSelected && (lastZoom+1 <= currentZoom || currentZoom <= lastZoom)) || enforce) {
+                    // On a suffisamment dézoomé pour afficher l'agrégation
+                    if (currentZoom <= lastZoom && lastZoom >= 8) {
+                        sketchLocationIsLoaded = false;
+                        mainSketch.remove();
+                        mainSketch = new p5(sketchAgg, "data");
+                    }
+                    currentZoom = Math.floor(currentZoom);
+                    let distMax = 100_000;
+                    if (currentZoom === 5) distMax = 100_000;
+                    else if (currentZoom === 6) distMax = 50_000;
+                    else if (currentZoom === 7) distMax = 30_000;
+                    // Afficher la localisation des bornes au-delà du niveau de zoom 8
+                    else if (currentZoom >= 8 && !sketchLocationIsLoaded) {
+                        sketchLocationIsLoaded = true;
+                        mainSketch.remove();
+                        mainSketch = new p5(sketchLocation, "data");
+                    }
+                    if (currentZoom < 8) {data.computeClusters(distMax=distMax);}
+                    lastZoom = currentZoom;
                 }
             }
-        });
-
-        // Contrôles pour les filtres
-
-        // https://refreshless.com/nouislider/
-        const dateSlider = document.getElementById("slider-date");
-        dateSlider.style.margin = "40px 35px 10px 23px";
-        noUiSlider.create(dateSlider, {
-            // Create two timestamps to define a range.
-            range: {
-                min: data.filters.startYear,
-                max: data.filters.stopYear,
-                "10%": 2000,
-                "20%": 2015
-            },
-            // Couleur entre les curseurs
-            connect: true,
-            // Pas de 1 an
-            step: 1,
-            start: [data.filters.startYear, data.filters.stopYear],
-            // Indicateur de l'année sélectionnée
-            tooltips: true,
-            // Pas de décimales
-            format: {
-                to: (v) => v | 0,
-                from: (v) => v | 0
-            }
-        });
-        dateSlider.noUiSlider.on("update", function(values, _) {
-            data.filters.startYear = values[0];
-            data.filters.stopYear = values[1];
-            data.applyFilters();
-        });
-
-        const puissanceSlider = document.getElementById("slider-puissance");
-        puissanceSlider.style.margin = "48px 35px 10px 23px";
-        noUiSlider.create(puissanceSlider, {
-            start: [data.filters.startPuissance, data.filters.stopPuissance],
-            range: {"min": data.filters.startPuissance, "max": data.filters.stopPuissance,
-                "10%":3, "20%":7, "30%":11, "40%":22, "50%":50, "60%":100, "70%":150, "80%":250, "90%":350 },
-            connect: true, snap: true, // Faire des sauts entre valeur  
-            tooltips: {to: x => x + " kW", from: x => Number(x.split(" ")[0])},
-            format: {to: (v) => v | 0, from: (v) => v | 0}
-        });
-        puissanceSlider.noUiSlider.on("update", function(values, _) {
-            data.filters.startPuissance = values[0];
-            data.filters.stopPuissance = values[1];
-            data.applyFilters();
-        });
-
-        const sliderTypeEF = document.getElementById("slider-type-ef");
-        sliderTypeEF.style.margin = "48px 35px 10px 23px";
-        sliderTypeEF.style.width = "45%";
-        noUiSlider.create(sliderTypeEF, {
-            start: 2,
-            range: {min: 0, max: 2},
-            step: 1, connect: "lower",  
-            tooltips: false,
-            // Affichage des valeurs FAUX, VRAI, N/A
-            pips: {mode: "count", values: 3, format: {
-                to: x => {
-                    if (x === 0) return "FAUX";
-                    else if (x === 1) return "VRAI";
-                    else if (x === 2) return "N/A";    
-                }, from : x => {
-                    if (x === "FAUX") return 0;
-                    else if (x === "VRAI") return 1;
-                    else if (x === "N/A") return 2;
+            map.on("zoom", function() {zoomCallback();});
+            
+            // Choix de l'onglet de visualisation
+            document.getElementById("visu-choice").addEventListener("click", function(event) {
+                const currentId = document.getElementsByClassName("selected")[0].id;
+                if (event.target.tagName === "BUTTON" && event.target.id !== currentId) {
+                    // Libération de la représentation précédente
+                    document.getElementsByClassName("selected")[0].className = "";
+                    document.getElementById(event.target.id).className = "selected";
+                    if (mainSketch !== null) mainSketch.remove();
+                    if (legendSketch !== null) legendSketch.remove();
+                    document.getElementById("legend").innerHTML = "";
+                    
+                    // Changement de représentation
+                    if (event.target.id === "button-location") {
+                        mainSketch = new p5(sketchLocation, "data");
+                        legendSketch = null;
+                    }
+                    else if (event.target.id === "button-circle") {
+                        mainSketch = new p5(sketchCircle, "data");
+                        legendSketch = new p5(sketchLegendCircle, "legend");
+                    }
+                    else if (event.target.id === "button-agg") {
+                        mainSketch = new p5(sketchAgg, "data");
+                        sketchLocationIsLoaded = false;
+                        zoomCallback(enforce=true);
+                        legendSketch = null;
+                    }
                 }
-            }},
-            format: {to: (v) => v | 0, from: (v) => v | 0}
-        });
-        // Suppression de la barre de graduation
-        document.querySelectorAll("div.noUi-marker.noUi-marker-horizontal.noUi-marker-normal")
-        .forEach(x => x.remove());
-        sliderTypeEF.noUiSlider.on("update", function(values, _) {
-            data.filters.typeEF = values[0]; data.applyFilters();
-        });
+            });
 
-        [["slider-type-2", function(cond) {data.filters.type2 = cond;}], 
-        ["slider-combo-ccs", function(cond) {data.filters.typeComboCCS = cond;}], 
-        ["slider-chademo", function(cond) {data.filters.typeChademo = cond;}], 
-        ["slider-gratuit", function(cond) {data.filters.gratuit = cond;}]].forEach(([x, filterFun]) => {
-            const sliderBool = document.getElementById(x);
-            sliderBool.style.margin = "3px 35px 10px 23px";
-            sliderBool.style.width = "45%";
-            noUiSlider.create(sliderBool, {
-                start: 2, range: {min: 0, max: 2},step: 1, connect: "lower", tooltips: false,
-                format: {to: (v) => v | 0, from: (v) => v | 0}});
-            sliderBool.noUiSlider.on("update", function(values, _) {
-                filterFun(values[0]); data.applyFilters();
+            // Contrôles pour les filtres
+            // https://refreshless.com/nouislider/
+            const dateSlider = document.getElementById("slider-date");
+            dateSlider.style.margin = "40px 35px 10px 23px";
+            noUiSlider.create(dateSlider, {
+                // Create two timestamps to define a range.
+                range: {
+                    min: data.filters.startYear,
+                    max: data.filters.stopYear,
+                    "10%": 2000,
+                    "20%": 2015
+                },
+                // Couleur entre les curseurs
+                connect: true,
+                // Pas de 1 an
+                step: 1,
+                start: [data.filters.startYear, data.filters.stopYear],
+                // Indicateur de l'année sélectionnée
+                tooltips: true,
+                // Pas de décimales
+                format: {
+                    to: (v) => v | 0,
+                    from: (v) => v | 0
+                }
+            });
+            dateSlider.noUiSlider.on("update", function(values, _) {
+                data.filters.startYear = values[0];
+                data.filters.stopYear = values[1];
+                data.applyFilters();
+            });
+
+            const puissanceSlider = document.getElementById("slider-puissance");
+            puissanceSlider.style.margin = "48px 35px 10px 23px";
+            noUiSlider.create(puissanceSlider, {
+                start: [data.filters.startPuissance, data.filters.stopPuissance],
+                range: {"min": data.filters.startPuissance, "max": data.filters.stopPuissance,
+                    "10%":3, "20%":7, "30%":11, "40%":22, "50%":50, "60%":100, "70%":150, "80%":250, "90%":350 },
+                connect: true, snap: true, // Faire des sauts entre valeur  
+                tooltips: {to: x => x + " kW", from: x => Number(x.split(" ")[0])},
+                format: {to: (v) => v | 0, from: (v) => v | 0}
+            });
+            puissanceSlider.noUiSlider.on("update", function(values, _) {
+                data.filters.startPuissance = values[0];
+                data.filters.stopPuissance = values[1];
+                data.applyFilters();
+            });
+
+            const sliderTypeEF = document.getElementById("slider-type-ef");
+            sliderTypeEF.style.margin = "48px 35px 10px 23px";
+            sliderTypeEF.style.width = "45%";
+            noUiSlider.create(sliderTypeEF, {
+                start: 2,
+                range: {min: 0, max: 2},
+                step: 1, connect: "lower",  
+                tooltips: false,
+                // Affichage des valeurs FAUX, VRAI, N/A
+                pips: {mode: "count", values: 3, format: {
+                    to: x => {
+                        if (x === 0) return "FAUX";
+                        else if (x === 1) return "VRAI";
+                        else if (x === 2) return "N/A";    
+                    }, from : x => {
+                        if (x === "FAUX") return 0;
+                        else if (x === "VRAI") return 1;
+                        else if (x === "N/A") return 2;
+                    }
+                }},
+                format: {to: (v) => v | 0, from: (v) => v | 0}
+            });
+            // Suppression de la barre de graduation
+            document.querySelectorAll("div.noUi-marker.noUi-marker-horizontal.noUi-marker-normal")
+            .forEach(x => x.remove());
+            sliderTypeEF.noUiSlider.on("update", function(values, _) {
+                data.filters.typeEF = values[0]; data.applyFilters();
+            });
+
+            [["slider-type-2", function(cond) {data.filters.type2 = cond;}], 
+            ["slider-combo-ccs", function(cond) {data.filters.typeComboCCS = cond;}], 
+            ["slider-chademo", function(cond) {data.filters.typeChademo = cond;}], 
+            ["slider-gratuit", function(cond) {data.filters.gratuit = cond;}]].forEach(([x, filterFun]) => {
+                const sliderBool = document.getElementById(x);
+                sliderBool.style.margin = "3px 35px 10px 23px";
+                sliderBool.style.width = "45%";
+                noUiSlider.create(sliderBool, {
+                    start: 2, range: {min: 0, max: 2},step: 1, connect: "lower", tooltips: false,
+                    format: {to: (v) => v | 0, from: (v) => v | 0}});
+                sliderBool.noUiSlider.on("update", function(values, _) {
+                    filterFun(values[0]); data.applyFilters();
+                });
             });
         });
     });
