@@ -73,7 +73,7 @@ body {
 
 /* Range Slider Style */
 .noUi-connect {
-    background: #31a354;
+    background: limegreen;
 }
 
 .noUi-pips-horizontal {
@@ -84,6 +84,31 @@ body {
 div.noUi-marker.noUi-marker-horizontal.noUi-marker-large {
     background: black;
     height: 10px; top: 40px;
+}
+
+div.noUi-target {
+    height: 10px;
+}
+
+.noUi-origin {
+    transform: none;
+}
+
+.noUi-handle::before, .noUi-handle::after {
+    display: none !important;
+}
+
+div.noUi-handle {
+    height: 18px !important;
+    width: 18px !important;
+    top: -5px !important;
+    right: -9px !important;
+    border-radius: 9px;
+}
+
+div.noUi-tooltip {
+    height: 20px;
+    padding: 0 0;
 }
 
 .slider-checkbox {

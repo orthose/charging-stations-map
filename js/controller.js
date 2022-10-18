@@ -102,7 +102,7 @@ window.onload = () => {
             // Contrôles pour les filtres
             // https://refreshless.com/nouislider/
             const dateSlider = document.getElementById("slider-date");
-            dateSlider.style.margin = "40px 35px 10px 23px";
+            dateSlider.style.margin = "28px 35px 10px 23px";
             noUiSlider.create(dateSlider, {
                 // Create two timestamps to define a range.
                 range: {
@@ -131,7 +131,7 @@ window.onload = () => {
             });
 
             const puissanceSlider = document.getElementById("slider-puissance");
-            puissanceSlider.style.margin = "48px 35px 10px 23px";
+            puissanceSlider.style.margin = "32px 35px 10px 23px";
             noUiSlider.create(puissanceSlider, {
                 start: [data.filters.startPuissance, data.filters.stopPuissance],
                 range: {"min": data.filters.startPuissance, "max": data.filters.stopPuissance,
@@ -147,7 +147,7 @@ window.onload = () => {
             });
 
             const sliderTypeEF = document.getElementById("slider-type-ef");
-            sliderTypeEF.style.margin = "48px 35px 10px 23px";
+            sliderTypeEF.style.margin = "32px 35px 10px 23px";
             sliderTypeEF.style.width = "45%";
             noUiSlider.create(sliderTypeEF, {
                 start: 2,
