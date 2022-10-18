@@ -115,7 +115,9 @@ window.onload = () => {
             // Create two timestamps to define a range.
             range: {
                 min: minYear,
-                max: maxYear
+                max: maxYear,
+                "10%": 2000,
+                "20%": 2015
             },
             // Couleur entre les curseurs
             connect: true,
