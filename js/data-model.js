@@ -5,6 +5,13 @@ const data = {
     privateRawTable: [], // Table de référence à ne pas lire
     stations: [], // [[longitude, latitude]...]
     clusters: [], // [{lng:,lat:,sum:,distMin:,distMax:,distAvg:,distStd:}...]
+    filters:  {
+        startYear: null, stopYear: null,
+        startPuissance: null, stopPuissance: null,
+        typeEF: 2, type2: 2, 
+        typeComboCCS: 2,typeChademo: 2,
+        gratuit: 2
+    }
 };
 
 // Chargement asynchrone des données
@@ -25,6 +32,23 @@ data.loadData = function() {
                 });
                 return res;
             });
+            
+            // Initialisation des filtres
+            let dates = data.rawTable.map(x => x.date_mise_en_service);
+            dates = dates.sort((x, y) => {
+            const t1 = new Date(x).getTime();
+            const t2 = new Date(y).getTime();
+                if (t1 > t2) return 1;
+                else if (t2 < t2) return - 1;
+                else return 0;
+            });
+            data.filters.startYear = (new Date(dates[0])).getFullYear();
+            data.filters.stopYear = (new Date(dates[dates.length-1])).getFullYear();
+
+            let puissances = data.rawTable.map(x => x.puissance_nominale);
+            data.filters.startPuissance = Math.min(...puissances);
+            data.filters.stopPuissance = Math.max(...puissances);
+            
             // Table de référence à ne pas modifier
             data.privateRawTable = [...data.rawTable];
             data.loadStations();
@@ -58,19 +82,20 @@ data.computeClusters = function(distMax=100_000) {
     }
 }
 
-data.filterYear = function(startYear, stopYear) {
+data.applyFilters = function() {
+    const filterBoolCol = function(x, colName, filterCond) {
+        return filterCond === 2 || (filterCond === 1 && x[colName] === "true") || (filterCond === 0 && x[colName] === "false");
+    }
     data.rawTable = data.privateRawTable.filter(x => {
         const year = parseInt((new Date(x.date_mise_en_service)).getFullYear());
-        return startYear <= year && year <= stopYear; 
-    });
-    data.loadStations(); data.computeClusters();
-}
-
-data.filterPuissance = function(startPuissance, stopPuissance) {
-    data.rawTable = data.privateRawTable.filter(x => {
-        return startPuissance <= x.puissance_nominale && x.puissance_nominale <= stopPuissance; 
-    });
-    data.loadStations(); data.computeClusters();
+        return data.filters.startYear <= year && year <= data.filters.stopYear
+            && data.filters.startPuissance <= x.puissance_nominale && x.puissance_nominale <= data.filters.stopPuissance
+            && filterBoolCol(x, "prise_type_ef", data.filters.typeEF) 
+            && filterBoolCol(x, "prise_type_2", data.filters.type2) 
+            && filterBoolCol(x, "prise_type_combo_ccs", data.filters.typeComboCCS)
+            && filterBoolCol(x, "prise_type_chademo", data.filters.typeChademo) 
+            && filterBoolCol(x, "gratuit", data.filters.gratuit);
+    }); data.loadStations(); data.computeClusters();
 }
 
 data.loadData();

@@ -22,7 +22,7 @@ function sketchCircle(p) {
             // Couleur des bornes en fonction de la puissance
             p.noStroke();
             // Charge lente basse puissance en AC
-            if (puissance <= 22) p.fill(116, 196, 118, 100);
+            if (puissance <= 22) p.fill(116, 196, 118);
             // Charge moyenne puissante en DC
             else if (puissance <= 50) p.fill(49, 163, 84);
             // Au-delà de 50 kW on se bat pour quelques minutes
@@ -60,7 +60,7 @@ function sketchLegendCircle(p) {
         p.text("PUISSANCE", 0.10 * p.width, 0.05 * p.height);
 
         p.textAlign(p.LEFT, p.CENTER);
-        let legend = [["≤ 22 kW", "#74c47663"], ["≤ 50 kW", "#31a354"], ["> 50 kW", "#006d2c"]];
+        let legend = [["≤ 22 kW", "#74c476"], ["≤ 50 kW", "#31a354"], ["> 50 kW", "#006d2c"]];
         let offset = 1.5;
         for (let [text, color] of legend) {
             p.noStroke(); p.fill(color);

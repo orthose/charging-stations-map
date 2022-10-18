@@ -97,25 +97,15 @@ window.onload = () => {
         });
 
         // Contrôles pour les filtres
-        let dates = data.rawTable.map(x => x.date_mise_en_service);
-        dates = dates.sort((x, y) => {
-            const t1 = new Date(x).getTime();
-            const t2 = new Date(y).getTime();
-            if (t1 > t2) return 1;
-            else if (t2 < t2) return - 1;
-            else return 0;
-        });
-        const minYear = (new Date(dates[0])).getFullYear();
-        const maxYear = (new Date(dates[dates.length-1])).getFullYear();
 
         // https://refreshless.com/nouislider/
-        let dateSlider = document.getElementById('slider-date');
+        const dateSlider = document.getElementById("slider-date");
         dateSlider.style.margin = "40px 35px 10px 23px";
         noUiSlider.create(dateSlider, {
             // Create two timestamps to define a range.
             range: {
-                min: minYear,
-                max: maxYear,
+                min: data.filters.startYear,
+                max: data.filters.stopYear,
                 "10%": 2000,
                 "20%": 2015
             },
@@ -123,7 +113,7 @@ window.onload = () => {
             connect: true,
             // Pas de 1 an
             step: 1,
-            start: [minYear, maxYear],
+            start: [data.filters.startYear, data.filters.stopYear],
             // Indicateur de l'année sélectionnée
             tooltips: true,
             // Pas de décimales
@@ -132,27 +122,70 @@ window.onload = () => {
                 from: (v) => v | 0
             }
         });
-        dateSlider.noUiSlider.on("update", function(values, handle) {
-            data.filterYear(values[0], values[1]);
+        dateSlider.noUiSlider.on("update", function(values, _) {
+            data.filters.startYear = values[0];
+            data.filters.stopYear = values[1];
+            data.applyFilters();
         });
 
-        let puissances = data.rawTable.map(x => x.puissance_nominale);
-        const minPuissance = Math.min(...puissances);
-        const maxPuissance = Math.max(...puissances);
-
-        let puissanceSlider = document.getElementById('slider-puissance');
+        const puissanceSlider = document.getElementById("slider-puissance");
         puissanceSlider.style.margin = "48px 35px 10px 23px";
         noUiSlider.create(puissanceSlider, {
-            start: [minPuissance, maxPuissance],
-            range: {"min": minPuissance, "max": maxPuissance,
+            start: [data.filters.startPuissance, data.filters.stopPuissance],
+            range: {"min": data.filters.startPuissance, "max": data.filters.stopPuissance,
                 "10%":3, "20%":7, "30%":11, "40%":22, "50%":50, "60%":100, "70%":150, "80%":250, "90%":350 },
             connect: true, snap: true, // Faire des sauts entre valeur  
             tooltips: {to: x => x + " kW", from: x => Number(x.split(" ")[0])},
             format: {to: (v) => v | 0, from: (v) => v | 0}
         });
-        puissanceSlider.noUiSlider.on("update", function(values, handle) {
-            data.filterPuissance(values[0], values[1]);
+        puissanceSlider.noUiSlider.on("update", function(values, _) {
+            data.filters.startPuissance = values[0];
+            data.filters.stopPuissance = values[1];
+            data.applyFilters();
         });
 
+        const sliderTypeEF = document.getElementById("slider-type-ef");
+        sliderTypeEF.style.margin = "48px 35px 10px 23px";
+        sliderTypeEF.style.width = "45%";
+        noUiSlider.create(sliderTypeEF, {
+            start: 2,
+            range: {min: 0, max: 2},
+            step: 1, connect: "lower",  
+            tooltips: false,
+            // Affichage des valeurs FAUX, VRAI, N/A
+            pips: {mode: "count", values: 3, format: {
+                to: x => {
+                    if (x === 0) return "FAUX";
+                    else if (x === 1) return "VRAI";
+                    else if (x === 2) return "N/A";    
+                }, from : x => {
+                    if (x === "FAUX") return 0;
+                    else if (x === "VRAI") return 1;
+                    else if (x === "N/A") return 2;
+                }
+            }},
+            format: {to: (v) => v | 0, from: (v) => v | 0}
+        });
+        // Suppression de la barre de graduation
+        document.querySelectorAll("div.noUi-marker.noUi-marker-horizontal.noUi-marker-normal")
+        .forEach(x => x.remove());
+        sliderTypeEF.noUiSlider.on("update", function(values, _) {
+            data.filters.typeEF = values[0]; data.applyFilters();
+        });
+
+        [["slider-type-2", function(cond) {data.filters.type2 = cond;}], 
+        ["slider-combo-ccs", function(cond) {data.filters.typeComboCCS = cond;}], 
+        ["slider-chademo", function(cond) {data.filters.typeChademo = cond;}], 
+        ["slider-gratuit", function(cond) {data.filters.gratuit = cond;}]].forEach(([x, filterFun]) => {
+            const sliderBool = document.getElementById(x);
+            sliderBool.style.margin = "3px 35px 10px 23px";
+            sliderBool.style.width = "45%";
+            noUiSlider.create(sliderBool, {
+                start: 2, range: {min: 0, max: 2},step: 1, connect: "lower", tooltips: false,
+                format: {to: (v) => v | 0, from: (v) => v | 0}});
+            sliderBool.noUiSlider.on("update", function(values, _) {
+                filterFun(values[0]); data.applyFilters();
+            });
+        });
     });
 }
