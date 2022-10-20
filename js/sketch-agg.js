@@ -55,19 +55,17 @@ function sketchAgg(p) {
                 const pmin = map.project([cluster.min.lon, cluster.min.lat]);
                 p.stroke(0, 0, 255);
                 p.line(px, py, pmin.x, pmin.y)
-                //p.circle(px, py, 2 * radiusZoomLevel(cluster.distMin));
             }
             if (showMax) {
                 const pmax = map.project([cluster.max.lon, cluster.max.lat]);
                 p.stroke(255, 0, 0);
                 p.line(px, py, pmax.x, pmax.y)
-                //p.circle(px, py, 2 * radiusZoomLevel(cluster.distMax));
             }
         }
     }
 }
 
-/*function sketchLegendAgg(p) {
+function sketchLegendAgg(p) {
     p.setup = function () {
         const legendTag = document.getElementById("legend");
         p.createCanvas(legendTag.offsetWidth , legendTag.offsetHeight);
@@ -80,5 +78,40 @@ function sketchAgg(p) {
     }
     
     p.draw = function () {
+        const radius = 0.15 * p.width / 2;
+        const cx = (0.10 * p.width) + radius;
+        const marginLeft = (0.10 * p.width);
+        const beginLegendText = (0.20 * p.width) + 2 * radius;
+        let dy = radius;
+        
+        p.noStroke(); p.fill(49, 163, 84); p.circle(cx, dy, 2 * radius);
+        p.fill(255); p.textAlign(p.CENTER, p.CENTER); p.textSize(20); p.text("1", cx, dy);
+        p.fill(0); p.textAlign(p.LEFT, p.CENTER); p.text("NOMBRE DE STATIONS", beginLegendText, dy);
+
+        dy += 2 * radius;
+        p.stroke(0); p.fill(0); p.textAlign(p.LEFT, p.TOP);
+        p.text("DISTANCE AU CENTROÏDE", marginLeft, dy);
+
+        dy += 2.5 * radius;
+        p.textAlign(p.LEFT, p.CENTER);
+        p.stroke(0); p.noFill(); p.circle(cx, dy, 2 * radius); 
+        p.noStroke(); p.fill(0); p.text("MOYENNE", beginLegendText, dy);
+
+        dy += 2.5 * radius;
+        p.stroke(0); p.noFill();
+        const deltaPoints = 5; 
+        if (radius > 0 && deltaPoints <= 2 * radius) {
+            let deltaAngle = 2 * Math.asin(deltaPoints / (2 * radius));
+            for(let angle = 0; angle < p.TWO_PI; angle += deltaAngle) {
+                p.circle(cx + radius * p.cos(angle), dy + radius * p.sin(angle), 1);
+            }
+        }
+        p.noStroke(); p.fill(0); p.text("ÉCART-TYPE", beginLegendText, dy);
+
+        [["#0000ff", "MINIMUM"], ["#ff0000", "MAXIMUM"]].forEach(([color, legendText]) => {
+            p.stroke(color); p.strokeWeight(2); dy += 2 * radius; 
+            p.line(0.10 * p.width, dy, marginLeft + (2 * radius), dy);
+            p.noStroke(); p.strokeWeight(1); p.fill(0); p.text(legendText, beginLegendText, dy);
+        });    
     }
-}*/
+}

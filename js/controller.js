@@ -89,6 +89,7 @@ window.onload = () => {
                     }
                     else if (event.target.id === "button-circle") {
                         mainSketch = new p5(sketchCircle, "data");
+                        document.getElementById("legend").appendChild(document.createElement("hr"));
                         legendSketch = new p5(sketchLegendCircle, "legend");
                     }
                     else if (event.target.id === "button-agg") {
@@ -117,7 +118,8 @@ window.onload = () => {
                         mainSketch = new p5(sketchAgg, "data");
                         sketchLocationIsLoaded = false;
                         zoomCallback(enforce=true);
-                        legendSketch = null;
+                        document.getElementById("legend").appendChild(document.createElement("hr"));
+                        legendSketch = new p5(sketchLegendAgg, "legend");
                     }
                 }
             });

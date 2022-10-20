@@ -53,8 +53,6 @@ function sketchLegendCircle(p) {
     }
     
     p.draw = function () {
-        p.stroke(0); p.line(0, 0, p.width, 0);
-
         // Puissance
         p.stroke(0); p.fill(0); p.textSize(20); p.textAlign(p.LEFT, p.TOP);
         p.text("PUISSANCE", 0.10 * p.width, 0.05 * p.height);
