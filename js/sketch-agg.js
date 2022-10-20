@@ -82,7 +82,7 @@ function sketchLegendAgg(p) {
         const cx = (0.10 * p.width) + radius;
         const marginLeft = (0.10 * p.width);
         const beginLegendText = (0.20 * p.width) + 2 * radius;
-        let dy = radius;
+        let dy = 1.5 * radius;
         
         p.noStroke(); p.fill(49, 163, 84); p.circle(cx, dy, 2 * radius);
         p.fill(255); p.textAlign(p.CENTER, p.CENTER); p.textSize(20); p.text("1", cx, dy);

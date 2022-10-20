@@ -63,7 +63,7 @@ function sketchLegendCircle(p) {
         for (let [text, color] of legend) {
             p.noStroke(); p.fill(color);
             p.rect(0.10 * p.width, offset * 0.10 * p.height, 0.10 * p.width, 0.10 * p.height);
-            p.stroke(0); p.fill(0); 
+            p.noStroke(); p.fill(0); 
             p.text(text, 3 * 0.10 * p.width, (offset + 0.5) * 0.10 * p.height);
             offset += 1;
         }
@@ -78,7 +78,7 @@ function sketchLegendCircle(p) {
         for (let [text, radius] of legend) {
             p.stroke(0); p.strokeWeight(1); p.noFill();
             p.circle(0.15 * p.width, (6.25 + offset) * 0.10 * p.height, radius);
-            p.fill(0); p.text(text, 3 * 0.10 * p.width, (6.25 + offset) * 0.10 * p.height);
+            p.noStroke(); p.fill(0); p.text(text, 3 * 0.10 * p.width, (6.25 + offset) * 0.10 * p.height);
             offset += 1;
         }
         legend = [["≤ 16", 16.0], ["> 16", 20.0]];
@@ -86,7 +86,7 @@ function sketchLegendCircle(p) {
         for (let [text, radius] of legend) {
             p.stroke(0); p.strokeWeight(1); p.noFill();
             p.circle(0.55 * p.width, (6.25 + offset) * 0.10 * p.height, radius);
-            p.fill(0);
+            p.noStroke(); p.fill(0);
             p.text(text, 0.70 * p.width, (6.25 + offset) * 0.10 * p.height);
             offset += 1;
         }
