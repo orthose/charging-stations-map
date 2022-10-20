@@ -52,12 +52,16 @@ function sketchAgg(p) {
                 });
             }
             if (showMin) {
+                const pmin = map.project([cluster.min.lon, cluster.min.lat]);
                 p.stroke(0, 0, 255);
-                p.circle(px, py, 2 * radiusZoomLevel(cluster.distMin));
+                p.line(px, py, pmin.x, pmin.y)
+                //p.circle(px, py, 2 * radiusZoomLevel(cluster.distMin));
             }
             if (showMax) {
+                const pmax = map.project([cluster.max.lon, cluster.max.lat]);
                 p.stroke(255, 0, 0);
-                p.circle(px, py, 2 * radiusZoomLevel(cluster.distMax));
+                p.line(px, py, pmax.x, pmax.y)
+                //p.circle(px, py, 2 * radiusZoomLevel(cluster.distMax));
             }
         }
     }

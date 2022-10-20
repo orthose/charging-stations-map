@@ -25,17 +25,34 @@ function computeClusters(stations, distMax) {
 
     // Calcul des distances par rapport au centroïde
     clustersCenter = clustersCenter.map(function(cluster, i) {
-        const distances = clustersStations[i].map(station => 
-            haversine(cluster.lon, cluster.lat, station[0], station[1]));
+        // Invariant: Il y a au moins un élément dans le cluster
+        const distances = clustersStations[i].map(station => {
+            return {lon: station[0], lat: station[1], 
+            dist: haversine(cluster.lon, cluster.lat, station[0], station[1])}
+        });
         // Distance minimale
-        cluster.distMin = Math.min(...distances);
+        cluster.min = distances.reduce((acc, x) => {
+            if (acc.dist > x.dist) {
+                acc.lon = x.lon;
+                acc.lat = x.lat;
+                acc.dist = x.dist;
+            }
+            return acc;
+        }, {lon: distances[0].lon, lat: distances[0].lat, dist: distances[0].dist});
         // Distance maximale
-        cluster.distMax = Math.max(...distances);
+        cluster.max = distances.reduce((acc, x) => {
+            if (acc.dist < x.dist) {
+                acc.lon = x.lon;
+                acc.lat = x.lat;
+                acc.dist = x.dist;
+            }
+            return acc;
+        }, {lon: distances[0].lon, lat: distances[0].lat, dist: distances[0].dist});
         // Distance moyenne
-        cluster.distAvg = distances.reduce((acc, x) => acc + x, 0) / distances.length;
+        cluster.distAvg = distances.reduce((acc, x) => acc + x.dist, 0) / distances.length;
         // Calcul de l'écart-type
         cluster.distStd = Math.sqrt((1 / distances.length) 
-            * distances.reduce((acc, x) => acc + Math.pow(x - cluster.distAvg, 2), 0)
+            * distances.reduce((acc, x) => acc + Math.pow(x.dist - cluster.distAvg, 2), 0)
         );
         return cluster;
     });
