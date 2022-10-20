@@ -80,6 +80,7 @@ window.onload = () => {
                     if (mainSketch !== null) mainSketch.remove();
                     if (legendSketch !== null) legendSketch.remove();
                     document.getElementById("legend").innerHTML = "";
+                    document.getElementById("visu-tools").innerHTML = "";
                     
                     // Changement de représentation
                     if (event.target.id === "button-location") {
@@ -91,6 +92,28 @@ window.onload = () => {
                         legendSketch = new p5(sketchLegendCircle, "legend");
                     }
                     else if (event.target.id === "button-agg") {
+                        // Affichage des outils de personnalisation de la visualisation
+                        document.getElementById("visu-tools").appendChild(document.createElement("hr"));
+                        [["slider-avg", "MOYENNE", () => {showAvg = !showAvg;}],
+                        ["slider-std", "ÉCART-TYPE", () => {showStd = !showStd;}],
+                        ["slider-min", "MINIMUM", () => {showMin = !showMin;}],
+                        ["slider-max", "MAXIMUM", () => {showMax = !showMax;}]].forEach(([sliderId, labelName, callback]) => {
+                            let sliderCheckbox = document.createElement("div");
+                            sliderCheckbox.id = sliderId; sliderCheckbox.className = "slider-checkbox";
+                            const label = document.createElement("label");
+                            label.appendChild(sliderCheckbox); label.innerHTML += labelName;
+                            document.getElementById("visu-tools").appendChild(label);
+                            document.getElementById("visu-tools").appendChild(document.createElement("br"));
+                            sliderCheckbox = document.getElementById(sliderId);
+                            sliderCheckbox.style.margin = "3px 35px 10px 23px";
+                            sliderCheckbox.style.width = "25%";
+                            noUiSlider.create(sliderCheckbox, {
+                                start: 0, range: {min: 0, max: 2},step: 1, snap: true, 
+                                connect: "lower", tooltips: false,
+                                format: {to: (v) => v | 0, from: (v) => v | 0}
+                            });
+                            sliderCheckbox.noUiSlider.on("update", callback);
+                        });
                         mainSketch = new p5(sketchAgg, "data");
                         sketchLocationIsLoaded = false;
                         zoomCallback(enforce=true);
@@ -175,17 +198,17 @@ window.onload = () => {
                 data.filters.typeEF = values[0]; data.applyFilters();
             });
 
-            [["slider-type-2", function(cond) {data.filters.type2 = cond;}], 
-            ["slider-combo-ccs", function(cond) {data.filters.typeComboCCS = cond;}], 
-            ["slider-chademo", function(cond) {data.filters.typeChademo = cond;}], 
-            ["slider-gratuit", function(cond) {data.filters.gratuit = cond;}]].forEach(([x, filterFun]) => {
-                const sliderBool = document.getElementById(x);
-                sliderBool.style.margin = "3px 35px 10px 23px";
-                sliderBool.style.width = "45%";
-                noUiSlider.create(sliderBool, {
+            [["slider-type-2", (cond) => {data.filters.type2 = cond;}], 
+            ["slider-combo-ccs", (cond) => {data.filters.typeComboCCS = cond;}], 
+            ["slider-chademo", (cond) => {data.filters.typeChademo = cond;}], 
+            ["slider-gratuit", (cond) => {data.filters.gratuit = cond;}]].forEach(([sliderId, filterFun]) => {
+                const sliderCheckbox = document.getElementById(sliderId);
+                sliderCheckbox.style.margin = "3px 35px 10px 23px";
+                sliderCheckbox.style.width = "45%";
+                noUiSlider.create(sliderCheckbox, {
                     start: 2, range: {min: 0, max: 2},step: 1, connect: "lower", tooltips: false,
                     format: {to: (v) => v | 0, from: (v) => v | 0}});
-                sliderBool.noUiSlider.on("update", function(values, _) {
+                sliderCheckbox.noUiSlider.on("update", function(values, _) {
                     filterFun(values[0]); data.applyFilters();
                 });
             });

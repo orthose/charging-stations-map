@@ -1,10 +1,24 @@
-// Ajouter ici les variables pour gérer les choses à afficher interactivement
+// Variables pour la modification de la visualisation
+// Il y a un premier update automatique de ces varibles
+let showAvg = false;
+let showStd = false;
+let showMin = false;
+let showMax = false;
 
 function sketchAgg(p) {
+    function radiusZoomLevel(distance) {
+        return distance / scaleZoomLevel(map.getZoom());
+    }
+
     p.setup = function () {
         const mapTag = document.getElementById("map");
         p.createCanvas(mapTag.offsetWidth , mapTag.offsetHeight);
         p.frameRate(1);
+        // Réinitilisation des variables du contrôleur
+        showAvg = false;
+        showStd = false;
+        showMin = false;
+        showMax = false;
     }
 
     p.windowResized = function() {
@@ -26,7 +40,31 @@ function sketchAgg(p) {
             p.textSize(9);
             p.text(cluster.sum <= 999 ? cluster.sum : "999+", px, py);
             p.stroke(0); p.noFill();
-            p.circle(px, py, 2 * (cluster.distAvg / scaleZoomLevel(map.getZoom())));
+            if (showAvg) p.circle(px, py, 2 * radiusZoomLevel(cluster.distAvg));
+            if (showStd) {
+                // On veut tracer deux cercles en pointillés encadrant la moyenne
+                const deltaPoints = 5; // Distance entre 2 points du cercle
+                [radiusZoomLevel(cluster.distAvg + cluster.distStd),
+                radiusZoomLevel(cluster.distAvg - cluster.distStd)].forEach(radiusStd => {
+                    if (radiusStd > 0 && deltaPoints <= 2 * radiusStd) {
+                        // On veut que l'espacement deltaPoints entre deux points du cercle 
+                        // soit constant quelle que soit la taille du rayon
+                        // Triangle isocèle avec pour base deltaPoints et comme côtés égaux radiusStd
+                        let deltaAngle = 2 * Math.asin(deltaPoints / (2 * radiusStd));
+                        for(let angle = 0; angle < p.TWO_PI; angle += deltaAngle) {
+                            p.circle(px + radiusStd * p.cos(angle), py + radiusStd * p.sin(angle), 1);
+                        }  
+                    }
+                });
+            }
+            if (showMin) {
+                p.stroke(0, 0, 255);
+                p.circle(px, py, 2 * radiusZoomLevel(cluster.distMin));
+            }
+            if (showMax) {
+                p.stroke(255, 0, 0);
+                p.circle(px, py, 2 * radiusZoomLevel(cluster.distMax));
+            }
         }
     }
 }
