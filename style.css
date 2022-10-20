@@ -24,6 +24,12 @@ body {
     width: 30%; height: 50%;
 }
 
+#controller label {
+    display: block;
+    min-width: 272px;
+    overflow: hidden;
+} 
+
 #controller button {
     border-radius: 0;
     background: white;

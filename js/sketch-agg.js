@@ -78,7 +78,7 @@ function sketchLegendAgg(p) {
     }
     
     p.draw = function () {
-        const radius = 0.15 * p.width / 2;
+        const radius = 0.12 * p.height / 2;
         const cx = (0.10 * p.width) + radius;
         const marginLeft = (0.10 * p.width);
         const beginLegendText = (0.20 * p.width) + 2 * radius;

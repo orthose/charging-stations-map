@@ -104,7 +104,6 @@ window.onload = () => {
                             const label = document.createElement("label");
                             label.appendChild(sliderCheckbox); label.innerHTML += labelName;
                             document.getElementById("visu-tools").appendChild(label);
-                            document.getElementById("visu-tools").appendChild(document.createElement("br"));
                             sliderCheckbox = document.getElementById(sliderId);
                             sliderCheckbox.style.margin = "3px 35px 10px 23px";
                             sliderCheckbox.style.width = "25%";
@@ -172,7 +171,7 @@ window.onload = () => {
             });
 
             const sliderTypeEF = document.getElementById("slider-type-ef");
-            sliderTypeEF.style.margin = "32px 35px 10px 23px";
+            sliderTypeEF.style.margin = "36px 35px 10px 23px";
             sliderTypeEF.style.width = "45%";
             noUiSlider.create(sliderTypeEF, {
                 start: 2,
