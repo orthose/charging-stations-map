@@ -1,5 +1,4 @@
 // Variables pour la modification de la visualisation
-// Il y a un premier update automatique de ces varibles
 let showAvg = false;
 let showStd = false;
 let showMin = false;
@@ -14,11 +13,6 @@ function sketchAgg(p) {
         const mapTag = document.getElementById("map");
         p.createCanvas(mapTag.offsetWidth , mapTag.offsetHeight);
         p.frameRate(1);
-        // Réinitilisation des variables du contrôleur
-        showAvg = false;
-        showStd = false;
-        showMin = false;
-        showMax = false;
     }
 
     p.windowResized = function() {
