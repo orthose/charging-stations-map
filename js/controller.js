@@ -124,7 +124,7 @@ window.onload = () => {
                                 connect: "lower", tooltips: false,
                                 format: {to: (v) => v | 0, from: (v) => v | 0}
                             });
-                            sliderCheckbox.noUiSlider.on("change", callback);
+                            sliderCheckbox.noUiSlider.on("update", callback);
                         });
                         mainSketch = new p5(sketchAgg, "data");
                         sketchLocationIsLoaded = false;
@@ -152,7 +152,7 @@ window.onload = () => {
                                 connect: "lower", tooltips: false,
                                 format: {to: (v) => v | 0, from: (v) => v | 0}
                             });
-                            sliderCheckbox.noUiSlider.on("change", callback);
+                            sliderCheckbox.noUiSlider.on("update", callback);
                         });
                         mainSketch = new p5(sketchVoronoi, "data");
                     }
