@@ -5,7 +5,9 @@ const data = {
     privateRawTable: [], // Table de référence à ne pas lire
     stations: [], // [[longitude, latitude]...]
     clusters: [], // [{lng:,lat:,sum:,distMin:,distMax:,distAvg:,distStd:}...]
-    voronoiPolygons: [],
+    stationsVoronoi: [], // [{px:,py:,nrow:}...]
+    voronoiPolygons: [], // [[[px1, py2], [px2, py2]...]...]
+    mainOperators: [], // ["IONITY"...]
     filters:  {
         startYear: null, stopYear: null,
         startPuissance: null, stopPuissance: null,
@@ -58,7 +60,12 @@ data.loadData = function() {
                 data.loadStations(); 
                 data.computeClusters(); 
                 data.computeVoronoi();
-                p.remove(); resolve();
+
+                // Chargement des opérateurs principaux
+                p.loadJSON(config.mainOperatorsPath, function(json) {
+                    data.mainOperators = json;
+                    p.remove(); resolve();
+                });
             });
         });
     });
@@ -96,19 +103,20 @@ data.computeClusters = function(distMax=100_000) {
 }
 
 data.computeVoronoi = function() {
-    let stationsPixels = data.stations.map(station => {
+    // Projection des [longitude, latitude] vers l'espace des pixels
+    const stationsVoronoi = data.stations.map((station, i) => {
         const point = map.project([station[0], station[1]]);
-        return [point.x, point.y];
+        return {px: point.x, py: point.y, nrow: i};
     });
     // Suppression des outliers en dehors de l'écran
     const mapTag = document.getElementById("map");
     const width = mapTag.offsetWidth;
     const height = mapTag.offsetHeight;
-    stationsPixels = stationsPixels.filter(station => 
-        0 <= station[0] && station[0] <= width
-        && 0 <= station[1] && station[1] <= height
+    data.stationsVoronoi = stationsVoronoi.filter(station => 
+        0 <= station.px && station.px <= width
+        && 0 <= station.py && station.py <= height
     );
-    const delaunay = d3.Delaunay.from(stationsPixels);
+    const delaunay = d3.Delaunay.from(data.stationsVoronoi.map(station => [station.px, station.py]));
     // Bordures à spécifier pour éviter les polygones infinis sur les bords de la France
     const voronoi = delaunay.voronoi([0, 0, width, height]);
     data.voronoiPolygons = [...voronoi.cellPolygons()];

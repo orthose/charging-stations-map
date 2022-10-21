@@ -109,7 +109,8 @@ window.onload = () => {
                         [["slider-avg", "MOYENNE", (v) => {showAvg = v[0] === 1;}],
                         ["slider-std", "ÉCART-TYPE", (v) => {showStd = v[0] === 1;}],
                         ["slider-min", "MINIMUM", (v) => {showMin = v[0] === 1;}],
-                        ["slider-max", "MAXIMUM", (v) => {showMax = v[0] === 1;}]].forEach(([sliderId, labelName, callback]) => {
+                        ["slider-max", "MAXIMUM", (v) => {showMax = v[0] === 1;}]]
+                        .forEach(([sliderId, labelName, callback]) => {
                             let sliderCheckbox = document.createElement("div");
                             sliderCheckbox.id = sliderId; sliderCheckbox.className = "slider-checkbox";
                             const label = document.createElement("label");
@@ -132,6 +133,27 @@ window.onload = () => {
                         legendSketch = new p5(sketchLegendAgg, "legend");
                     }
                     else if (event.target.id === "button-voronoi") {
+                        // Affichage des outils de personnalisation de la visualisation
+                        document.getElementById("visu-tools").appendChild(document.createElement("hr"));
+                        [["slider-station", "STATION", (v) => {showStation = v[0] === 1;}],
+                        ["slider-power", "PUISSANCE", (v) => {showPower = v[0] === 1;}],
+                        ["slider-operator", "OPÉRATEUR", (v) => {showOperator = v[0] === 1;}]]
+                        .forEach(([sliderId, labelName, callback]) => {
+                            let sliderCheckbox = document.createElement("div");
+                            sliderCheckbox.id = sliderId; sliderCheckbox.className = "slider-checkbox";
+                            const label = document.createElement("label");
+                            label.appendChild(sliderCheckbox); label.innerHTML += labelName;
+                            document.getElementById("visu-tools").appendChild(label);
+                            sliderCheckbox = document.getElementById(sliderId);
+                            sliderCheckbox.style.margin = "3px 35px 10px 23px";
+                            sliderCheckbox.style.width = "25%";
+                            noUiSlider.create(sliderCheckbox, {
+                                start: 0, range: {min: 0, max: 1},step: 1, snap: true, 
+                                connect: "lower", tooltips: false,
+                                format: {to: (v) => v | 0, from: (v) => v | 0}
+                            });
+                            sliderCheckbox.noUiSlider.on("change", callback);
+                        });
                         mainSketch = new p5(sketchVoronoi, "data");
                     }
                 }

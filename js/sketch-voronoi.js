@@ -1,3 +1,8 @@
+// Variables pour la modification de la visualisation
+let showStation = false;
+let showPower = false;
+let showOperator = false;
+
 function sketchVoronoi(p) {
     p.setup = function () {
         const mapTag = document.getElementById("map");
@@ -16,19 +21,20 @@ function sketchVoronoi(p) {
         // que les stations visibles en fonction du niveau de zoom
 
         // Tracé des polygones
-        data.voronoiPolygons.forEach(polygon => {
+        data.voronoiPolygons.forEach((polygon, i) => {
             p.stroke("#787878"); p.strokeWeight(1); p.noFill(); 
             p.beginShape();
             polygon.forEach(point => {
                 p.vertex(point[0], point[1])
             });
             p.endShape();
-            
+
+            // Placement des stations
+            if (showStation) {
+                const station = data.stationsVoronoi[i];
+                p.noStroke(); p.fill(49, 163, 84); p.circle(station.px, station.py, 4);
+            } 
         });
-        // Placement des stations
-        data.stations.forEach(station => {
-            const point = map.project(station);
-            p.noStroke(); p.fill(49, 163, 84); p.circle(point.x, point.y, 4);
-        });
+        
     }
 }

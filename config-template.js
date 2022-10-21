@@ -3,4 +3,5 @@ const config = {
     mapboxToken: "",
     // Chemin vers les fichiers CSV
     dataPath: "data/bornes-recharge.csv",
+    mainOperatorsPath: "data/principaux-operateurs.json"
 }
