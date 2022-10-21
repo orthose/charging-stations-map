@@ -58,6 +58,7 @@ La visualisation est une application web réalisé HTML/CSS et [JavaScript](http
 * Pour l'affichage de la carte de France j'utilise [Mapbox](https://www.mapbox.com/).
 * Pour l'affichage des données j'utilise [p5.js](https://p5js.org/).
 * Les range sliders sont fournis par [noUiSlider](https://github.com/leongersen/noUiSlider/releases).
+* Le diagramme de Voronoï est calculé avec la librairie [d3-delaunay](https://github.com/d3/d3-delaunay).
 * Le pré-traitement des données est réalisé en [Python](https://www.python.org/) 
 avec la librairie [Pandas](https://pandas.pydata.org/).
 

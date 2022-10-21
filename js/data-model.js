@@ -5,6 +5,7 @@ const data = {
     privateRawTable: [], // Table de référence à ne pas lire
     stations: [], // [[longitude, latitude]...]
     clusters: [], // [{lng:,lat:,sum:,distMin:,distMax:,distAvg:,distStd:}...]
+    voronoiPolygons: [],
     filters:  {
         startYear: null, stopYear: null,
         startPuissance: null, stopPuissance: null,
@@ -53,10 +54,11 @@ data.loadData = function() {
                 
                 // Table de référence à ne pas modifier
                 data.privateRawTable = [...data.rawTable];
-                data.loadStations();
-                data.computeClusters();
-                p.remove();
-                resolve();
+
+                data.loadStations(); 
+                data.computeClusters(); 
+                data.computeVoronoi();
+                p.remove(); resolve();
             });
         });
     });
@@ -86,6 +88,25 @@ data.computeClusters = function(distMax=100_000) {
     }
 }
 
+data.computeVoronoi = function() {
+    let stationsPixels = data.stations.map(station => {
+        const point = map.project([station[0], station[1]]);
+        return [point.x, point.y];
+    }); console.log(stationsPixels.length)
+    // Suppression des outliers en dehors de l'écran
+    const mapTag = document.getElementById("map");
+    const width = mapTag.offsetWidth;
+    const height = mapTag.offsetHeight;
+    stationsPixels = stationsPixels.filter(station => 
+        0 <= station[0] && station[0] <= width
+        && 0 <= station[1] && station[1] <= height
+    ); console.log(stationsPixels.length)
+    const delaunay = d3.Delaunay.from(stationsPixels);
+    // Bordures à spécifier pour éviter les polygones infinis sur les bords de la France
+    const voronoi = delaunay.voronoi([0, 0, width, height]);
+    data.voronoiPolygons = [...voronoi.cellPolygons()];
+}
+
 data.applyFilters = function() {
     const filterBoolCol = function(x, colName, filterCond) {
         return filterCond === 2 || (filterCond === 1 && x[colName] === "true") || (filterCond === 0 && x[colName] === "false");
@@ -99,5 +120,8 @@ data.applyFilters = function() {
             && filterBoolCol(x, "prise_type_combo_ccs", data.filters.typeComboCCS)
             && filterBoolCol(x, "prise_type_chademo", data.filters.typeChademo) 
             && filterBoolCol(x, "gratuit", data.filters.gratuit);
-    }); data.loadStations(); data.computeClusters();
+    }); 
+    data.loadStations(); 
+    data.computeClusters(); 
+    data.computeVoronoi();
 }

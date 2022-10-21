@@ -43,32 +43,43 @@ window.onload = () => {
             let sketchLocationIsLoaded = false;
 
             function zoomCallback(enforce=false) {
-                const sketchAggIsSelected = document.getElementById("button-agg").className === "selected";
-                let currentZoom = map.getZoom();
-                // Calcul des clusters par rapport au zoom avec un pas de 1
-                if ((sketchAggIsSelected && (lastZoom+1 <= currentZoom || currentZoom <= lastZoom)) || enforce) {
-                    // On a suffisamment dézoomé pour afficher l'agrégation
-                    if (currentZoom <= lastZoom && lastZoom >= 8) {
-                        sketchLocationIsLoaded = false;
-                        mainSketch.remove();
-                        mainSketch = new p5(sketchAgg, "data");
+                // Si on zoom il faut recalculer le diagramme de Voronoï
+                // car la projection des longitudes, latitudes change
+                if (document.getElementById("button-voronoi").className === "selected") {
+                    data.computeVoronoi();
+                }
+                else if (document.getElementById("button-agg").className === "selected") {   
+                    let currentZoom = map.getZoom();
+                    // Calcul des clusters par rapport au zoom avec un pas de 1
+                    if ((lastZoom+1 <= currentZoom || currentZoom <= lastZoom) || enforce) {
+                        // On a suffisamment dézoomé pour afficher l'agrégation
+                        if (currentZoom <= lastZoom && lastZoom >= 8) {
+                            sketchLocationIsLoaded = false;
+                            mainSketch.remove();
+                            mainSketch = new p5(sketchAgg, "data");
+                        }
+                        currentZoom = Math.floor(currentZoom);
+                        let distMax = 100_000;
+                        if (currentZoom === 5) distMax = 100_000;
+                        else if (currentZoom === 6) distMax = 50_000;
+                        else if (currentZoom === 7) distMax = 30_000;
+                        // Afficher la localisation des bornes au-delà du niveau de zoom 8
+                        else if (currentZoom >= 8 && !sketchLocationIsLoaded) {
+                            sketchLocationIsLoaded = true;
+                            mainSketch.remove();
+                            mainSketch = new p5(sketchLocation, "data");
+                        }
+                        if (currentZoom < 8) {data.computeClusters(distMax=distMax);}
+                        lastZoom = currentZoom;
                     }
-                    currentZoom = Math.floor(currentZoom);
-                    let distMax = 100_000;
-                    if (currentZoom === 5) distMax = 100_000;
-                    else if (currentZoom === 6) distMax = 50_000;
-                    else if (currentZoom === 7) distMax = 30_000;
-                    // Afficher la localisation des bornes au-delà du niveau de zoom 8
-                    else if (currentZoom >= 8 && !sketchLocationIsLoaded) {
-                        sketchLocationIsLoaded = true;
-                        mainSketch.remove();
-                        mainSketch = new p5(sketchLocation, "data");
-                    }
-                    if (currentZoom < 8) {data.computeClusters(distMax=distMax);}
-                    lastZoom = currentZoom;
                 }
             }
             map.on("zoom", function() {zoomCallback();});
+            map.on("mouseup", function() {
+                if (document.getElementById("button-voronoi").className === "selected") {
+                    data.computeVoronoi();
+                }
+            })
             
             // Choix de l'onglet de visualisation
             document.getElementById("visu-choice").addEventListener("click", function(event) {
@@ -119,6 +130,9 @@ window.onload = () => {
                         zoomCallback(enforce=true);
                         document.getElementById("legend").appendChild(document.createElement("hr"));
                         legendSketch = new p5(sketchLegendAgg, "legend");
+                    }
+                    else if (event.target.id === "button-voronoi") {
+                        mainSketch = new p5(sketchVoronoi, "data");
                     }
                 }
             });
