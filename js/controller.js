@@ -123,7 +123,7 @@ window.onload = () => {
                                 connect: "lower", tooltips: false,
                                 format: {to: (v) => v | 0, from: (v) => v | 0}
                             });
-                            sliderCheckbox.noUiSlider.on("update", callback);
+                            sliderCheckbox.noUiSlider.on("change", callback);
                         });
                         mainSketch = new p5(sketchAgg, "data");
                         sketchLocationIsLoaded = false;
@@ -162,7 +162,7 @@ window.onload = () => {
                     from: (v) => v | 0
                 }
             });
-            dateSlider.noUiSlider.on("update", function(values, _) {
+            dateSlider.noUiSlider.on("change", function(values, _) {
                 data.filters.startYear = values[0];
                 data.filters.stopYear = values[1];
                 data.applyFilters();
@@ -178,7 +178,7 @@ window.onload = () => {
                 tooltips: {to: x => x + " kW", from: x => Number(x.split(" ")[0])},
                 format: {to: (v) => v | 0, from: (v) => v | 0}
             });
-            puissanceSlider.noUiSlider.on("update", function(values, _) {
+            puissanceSlider.noUiSlider.on("change", function(values, _) {
                 data.filters.startPuissance = values[0];
                 data.filters.stopPuissance = values[1];
                 data.applyFilters();
@@ -209,7 +209,7 @@ window.onload = () => {
             // Suppression de la barre de graduation
             document.querySelectorAll("div.noUi-marker.noUi-marker-horizontal.noUi-marker-normal")
             .forEach(x => x.remove());
-            sliderTypeEF.noUiSlider.on("update", function(values, _) {
+            sliderTypeEF.noUiSlider.on("change", function(values, _) {
                 data.filters.typeEF = values[0]; data.applyFilters();
             });
 
@@ -223,7 +223,7 @@ window.onload = () => {
                 noUiSlider.create(sliderCheckbox, {
                     start: 2, range: {min: 0, max: 2},step: 1, connect: "lower", tooltips: false,
                     format: {to: (v) => v | 0, from: (v) => v | 0}});
-                sliderCheckbox.noUiSlider.on("update", function(values, _) {
+                sliderCheckbox.noUiSlider.on("change", function(values, _) {
                     filterFun(values[0]); data.applyFilters();
                 });
             });

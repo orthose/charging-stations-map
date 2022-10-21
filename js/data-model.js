@@ -99,7 +99,7 @@ data.computeVoronoi = function() {
     let stationsPixels = data.stations.map(station => {
         const point = map.project([station[0], station[1]]);
         return [point.x, point.y];
-    }); console.log(stationsPixels.length)
+    });
     // Suppression des outliers en dehors de l'écran
     const mapTag = document.getElementById("map");
     const width = mapTag.offsetWidth;
@@ -107,7 +107,7 @@ data.computeVoronoi = function() {
     stationsPixels = stationsPixels.filter(station => 
         0 <= station[0] && station[0] <= width
         && 0 <= station[1] && station[1] <= height
-    ); console.log(stationsPixels.length)
+    );
     const delaunay = d3.Delaunay.from(stationsPixels);
     // Bordures à spécifier pour éviter les polygones infinis sur les bords de la France
     const voronoi = delaunay.voronoi([0, 0, width, height]);
