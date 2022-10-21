@@ -128,11 +128,14 @@ window.onload = () => {
                         });
                         mainSketch = new p5(sketchAgg, "data");
                         sketchLocationIsLoaded = false;
+                        // Calcul des clusters en fonction du niveau de zoom actuel
                         zoomCallback(enforce=true);
                         document.getElementById("legend").appendChild(document.createElement("hr"));
                         legendSketch = new p5(sketchLegendAgg, "legend");
                     }
                     else if (event.target.id === "button-voronoi") {
+                        // Calcul du diagramme de Voronoï
+                        data.computeVoronoi();
                         // Affichage des outils de personnalisation de la visualisation
                         document.getElementById("visu-tools").appendChild(document.createElement("hr"));
                         [["slider-station", "STATION", (v) => {showStation = v[0] === 1;}],

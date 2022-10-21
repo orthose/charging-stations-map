@@ -58,8 +58,7 @@ data.loadData = function() {
                 data.privateRawTable = [...data.rawTable];
 
                 data.loadStations(); 
-                data.computeClusters(); 
-                data.computeVoronoi();
+                data.computeClusters();
 
                 // Chargement des opérateurs principaux
                 p.loadJSON(config.mainOperatorsPath, function(json) {
