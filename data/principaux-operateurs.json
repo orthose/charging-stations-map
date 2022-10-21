@@ -1,12 +1,12 @@
 [
-    "BOUYGUES",
-    "IZIVIA",
-    "SPIE CITYNETWORKS",
-    "TOTALENERGIES",
-    "FRESHMILE",
-    "SOREGIES",
-    "EVZEN",
-    "ZEBORNE",
-    "IONITY",
-    "TESLA FRANCE"
+    ["BOUYGUES", "#a6cee3"],
+    ["IZIVIA", "#1f78b4"],
+    ["SPIE CITYNETWORKS", "#b2df8a"],
+    ["TOTALENERGIES", "#33a02c"],
+    ["FRESHMILE", "#fb9a99"],
+    ["SOREGIES", "#e31a1c"],
+    ["EVZEN", "#fdbf6f"],
+    ["ZEBORNE", "#ff7f00"],
+    ["IONITY", "#cab2d6"],
+    ["TESLA FRANCE", "#6a3d9a"]
 ]
