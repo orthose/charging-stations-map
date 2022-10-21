@@ -11,10 +11,10 @@ function sketchVoronoi(p) {
     }
 
     p.draw = function () {
-        p.clear(); p.stroke(0); let i = 0;
-        for (let polygon of data.voronoiPolygons) {
+        p.clear();
+        data.voronoiPolygons.forEach((polygon, i) => {
             // Tracé du polygone
-            p.noFill(); 
+            p.stroke("#787878"); p.strokeWeight(1); p.noFill(); 
             p.beginShape();
             polygon.forEach(point => {
                 p.vertex(point[0], point[1])
@@ -22,8 +22,7 @@ function sketchVoronoi(p) {
             p.endShape();
             // Placement de la station
             const point = map.project(data.stations[i]);
-            p.fill(255, 0, 0); p.circle(point.x, point.y, 5);
-            i += 1;
-        }
+            p.noStroke(); p.fill(49, 163, 84); p.circle(point.x, point.y, 4);
+        });
     }
 }

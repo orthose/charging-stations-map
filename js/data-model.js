@@ -66,10 +66,17 @@ data.loadData = function() {
 
 data.loadStations = function() {
     data.stations = [];
+    const seen = new Set();
     const longitude = data.rawTable.map(x => x.longitude);
     const latitude = data.rawTable.map(x => x.latitude);
     for (let i = 0; i < data.rawTable.length; i++) {
-        data.stations.push([longitude[i], latitude[i]]);
+        const coord = [longitude[i], latitude[i]];
+        const coordString = coord.toString();
+        // Suppression des coordonnées dupliquées
+        if (!seen.has(coordString)) {
+            seen.add(coordString);
+            data.stations.push(coord);
+        }
     }
 }
 
