@@ -3,7 +3,7 @@
 const data = {
     rawTable: [], // Table à laquelle accède les sketchs
     privateRawTable: [], // Table de référence à ne pas lire
-    stations: [], // [[longitude, latitude]...]
+    stations: [], // [{lon:, lat:, nrow:}...]
     clusters: [], // [{lng:,lat:,sum:,distMin:,distMax:,distAvg:,distStd:}...]
     stationsVoronoi: [], // [{px:,py:,nrow:}...]
     voronoiPolygons: [], // [[[px1, py2], [px2, py2]...]...]
@@ -77,12 +77,12 @@ data.loadStations = function() {
     const longitude = data.rawTable.map(x => x.longitude);
     const latitude = data.rawTable.map(x => x.latitude);
     for (let i = 0; i < data.rawTable.length; i++) {
-        const coord = [longitude[i], latitude[i]];
-        const coordString = coord.toString();
+        const coord = [longitude[i], latitude[i]].toString();
         // Suppression des coordonnées dupliquées
-        if (!seen.has(coordString)) {
-            seen.add(coordString);
-            data.stations.push(coord);
+        if (!seen.has(coord)) {
+            seen.add(coord);
+            // nrow permet de joindre la station avec rawTable
+            data.stations.push({lon: longitude[i], lat: latitude[i], nrow: i});
         }
     }
 }
@@ -90,23 +90,24 @@ data.loadStations = function() {
 // Découpage des clusters pré-calculés en fonction de distMax
 // et calcul des centroïdes selon la moyenne des clusters
 data.computeClusters = function(distMax=100_000) {
+    const stations = data.stations.map(station => [station.lon, station.lat]);
     // Utilisation d'un thread séparé pour éviter de geler l'interface
     if (window.Worker) {
         let worker = new Worker("js/worker-compute-clusters.js");
-        worker.postMessage([data.stations, distMax]);
+        worker.postMessage([stations, distMax]);
         worker.onmessage = function(msg) {
             data.clusters = msg.data;
         }
     } else {
-        data.clusters = computeClusters(data.stations, distMax);
+        data.clusters = computeClusters(stations, distMax);
     }
 }
 
 data.computeVoronoi = function() {
     // Projection des [longitude, latitude] vers l'espace des pixels
-    const stationsVoronoi = data.stations.map((station, i) => {
-        const point = map.project([station[0], station[1]]);
-        return {px: point.x, py: point.y, nrow: i};
+    const stationsVoronoi = data.stations.map(station => {
+        const point = map.project([station.lon, station.lat]);
+        return {px: point.x, py: point.y, nrow: station.nrow};
     });
     // Suppression des outliers en dehors de l'écran
     const mapTag = document.getElementById("map");
