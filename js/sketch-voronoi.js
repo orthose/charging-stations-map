@@ -12,16 +12,22 @@ function sketchVoronoi(p) {
 
     p.draw = function () {
         p.clear();
-        data.voronoiPolygons.forEach((polygon, i) => {
-            // Tracé du polygone
+        // Attention: data.computeVoronoi applique un filtre pour n'afficher
+        // que les stations visibles en fonction du niveau de zoom
+
+        // Tracé des polygones
+        data.voronoiPolygons.forEach(polygon => {
             p.stroke("#787878"); p.strokeWeight(1); p.noFill(); 
             p.beginShape();
             polygon.forEach(point => {
                 p.vertex(point[0], point[1])
             });
             p.endShape();
-            // Placement de la station
-            const point = map.project(data.stations[i]);
+            
+        });
+        // Placement des stations
+        data.stations.forEach(station => {
+            const point = map.project(station);
             p.noStroke(); p.fill(49, 163, 84); p.circle(point.x, point.y, 4);
         });
     }
