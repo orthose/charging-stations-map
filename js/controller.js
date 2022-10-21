@@ -207,7 +207,7 @@ window.onload = () => {
             noUiSlider.create(puissanceSlider, {
                 start: [data.filters.startPuissance, data.filters.stopPuissance],
                 range: {"min": data.filters.startPuissance, "max": data.filters.stopPuissance,
-                    "10%":3, "20%":7, "30%":11, "40%":22, "50%":50, "60%":100, "70%":150, "80%":250, "90%":350 },
+                    "10%":3, "20%":7, "30%":11, "40%":22, "50%":50, "60%":100, "70%":150, "80%":250, "90%":350},
                 connect: true, snap: true, // Faire des sauts entre valeur  
                 tooltips: {to: x => x + " kW", from: x => Number(x.split(" ")[0])},
                 format: {to: (v) => v | 0, from: (v) => v | 0}
@@ -260,6 +260,26 @@ window.onload = () => {
                 sliderCheckbox.noUiSlider.on("change", function(values, _) {
                     filterFun(values[0]); data.applyFilters();
                 });
+            });
+
+            // Remise à zéro des sliders
+            document.getElementById("button-reset").addEventListener("click", function() {
+                document.querySelectorAll(".noUi-target").forEach(slider => {
+                    slider.noUiSlider.reset();
+                });
+                // Les sliders dans filters ne réagissent pas car il n'attendent pas d'event update
+                const [startYear, stopYear] = document.getElementById("slider-date").noUiSlider.get();
+                data.filters.startYear = startYear;
+                data.filters.stopYear = stopYear;
+                const [startPuissance, stopPuissance] = document.getElementById("slider-puissance").noUiSlider.get();
+                data.filters.startPuissance = startPuissance;
+                data.filters.stopPuissance = stopPuissance;
+                data.filters.typeEF = document.getElementById("slider-type-ef").noUiSlider.get();
+                data.filters.type2 = document.getElementById("slider-type-2").noUiSlider.get();
+                data.filters.typeComboCCS = document.getElementById("slider-combo-ccs").noUiSlider.get();
+                data.filters.typeChademo = document.getElementById("slider-chademo").noUiSlider.get();
+                data.filters.gratuit = document.getElementById("slider-gratuit").noUiSlider.get();
+                data.applyFilters();
             });
         });
     });

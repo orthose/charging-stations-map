@@ -30,14 +30,19 @@ body {
     overflow: hidden;
 } 
 
-#controller button {
+#controller button, #controller a {
+    color: black;
+    font-family: "Ubuntu";
+    font-size: small;
+    font-weight: bold;
+    padding: 1px 4px 1px 4px;
     border-radius: 0;
     background: white;
     border-top: 1px solid;
     border-left: 1px solid;
     border-bottom: 3px ridge;
     border-right: 3px ridge;
-    border-color: grey; 
+    border-color: grey;
 }
 
 #controller button.selected, #controller button.selected:hover  {
@@ -45,8 +50,12 @@ body {
     color: white;
 }
 
-#controller button:hover {
+#controller button:hover, #controller a:hover {
     background: #bae4b3;
+}
+
+#controller a {
+    text-decoration: none;
 }
 
 #legend {
