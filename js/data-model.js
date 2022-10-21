@@ -57,8 +57,8 @@ data.loadData = function() {
                 // Table de référence à ne pas modifier
                 data.privateRawTable = [...data.rawTable];
 
-                data.loadStations(); 
-                data.computeClusters();
+                // Chargement des stations dans un tableau facilement itérable
+                data.loadStations();
 
                 // Chargement des opérateurs principaux
                 p.loadJSON(config.mainOperatorsPath, function(json) {
