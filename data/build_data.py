@@ -55,4 +55,16 @@ df.drop_duplicates(inplace=True)
 # Tri pour affichage sur le dessus des fortes puissances
 df.sort_values(by="puissance_nominale", ascending=True, inplace=True)
 
+# Uniformisation des noms d'opérateur
+df["nom_operateur"] = df["nom_operateur"].str.upper()
+def correct_operator(operator):
+    operator = str(operator)
+    # https://www.automobile-propre.com/sodetrel-devient-izivia-et-annonce-lextension-du-reseau-corri-door/
+    corrections = [("BOUYGUES", "BOUYGUES"), ("TOTAL", "TOTALENERGIES"), ("FRESHMILE", "FRESHMILE"),
+    ("EVZEN", "EVZEN"), ("SODESTREL", "IZIVIA")]
+    for (start, correct) in corrections:
+        if operator.startswith(start): return correct
+    return operator
+df["nom_operateur"] = df["nom_operateur"].apply(correct_operator)
+
 df.to_csv("bornes-recharge.csv", sep=",", index=False)
