@@ -138,10 +138,16 @@ window.onload = () => {
                         data.computeVoronoi();
                         // Affichage des outils de personnalisation de la visualisation
                         document.getElementById("visu-tools").appendChild(document.createElement("hr"));
-                        [["slider-station", "STATION", (v) => {showStation = v[0] === 1;}],
-                        ["slider-power", "PUISSANCE", (v) => {showPower = v[0] === 1;}],
-                        ["slider-operator", "OPÉRATEUR", (v) => {showOperator = v[0] === 1;}]]
-                        .forEach(([sliderId, labelName, callback]) => {
+                        const sliders = [["slider-station", "STATION", (v) => {showStation = v[0] === 1;}],
+                        ["slider-power", "PUISSANCE", (v) => {
+                            if (v[0] === 1) document.getElementById("slider-operator").noUiSlider.set(0);
+                            showPower = v[0] === 1;
+                        }],
+                        ["slider-operator", "OPÉRATEUR", (v) => {
+                            if (v[0] === 1) document.getElementById("slider-power").noUiSlider.set(0);
+                            showOperator = v[0] === 1;
+                        }]];
+                        sliders.forEach(([sliderId, labelName, _]) => {
                             let sliderCheckbox = document.createElement("div");
                             sliderCheckbox.id = sliderId; sliderCheckbox.className = "slider-checkbox";
                             const label = document.createElement("label");
@@ -154,8 +160,11 @@ window.onload = () => {
                                 start: 0, range: {min: 0, max: 1},step: 1, snap: true, 
                                 connect: "lower", tooltips: false,
                                 format: {to: (v) => v | 0, from: (v) => v | 0}
-                            });
-                            sliderCheckbox.noUiSlider.on("update", callback);
+                            });   
+                        });
+                        // Comme on utilise l'event update on est obligés de créer les sliders avant
+                        sliders.forEach(([sliderId, _, callback]) => {
+                            document.getElementById(sliderId).noUiSlider.on("update", callback);
                         });
                         mainSketch = new p5(sketchVoronoi, "data");
                     }

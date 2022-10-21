@@ -51,7 +51,12 @@ function sketchVoronoi(p) {
             // Placement des stations
             if (showStation) {
                 const station = data.stationsVoronoi[i];
-                p.noStroke(); p.fill(49, 163, 84); p.circle(station.px, station.py, 4);
+                let diameter = 4;
+                if (showPower || showOperator) { 
+                    p.fill(0); diameter = 2;
+                }
+                else p.fill(49, 163, 84);
+                p.noStroke(); p.circle(station.px, station.py, diameter);
             }
         });  
     }
