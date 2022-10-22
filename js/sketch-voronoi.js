@@ -61,3 +61,62 @@ function sketchVoronoi(p) {
         });  
     }
 }
+
+function sketchLegendVoronoiPower(p) {
+    p.setup = function () {
+        const legendTag = document.getElementById("legend");
+        p.createCanvas(legendTag.offsetWidth , legendTag.offsetHeight);
+        p.noLoop();
+    }
+    
+    p.windowResized = function() {
+        const legendTag = document.getElementById("legend");
+        p.resizeCanvas(legendTag.offsetWidth , legendTag.offsetHeight);
+    }
+    
+    p.draw = function () {
+        p.stroke(0); p.fill(0); p.textSize(20); p.textAlign(p.LEFT, p.TOP);
+        p.text("PUISSANCE", 0.10 * p.width, 0.05 * p.height);
+        p.textAlign(p.LEFT, p.CENTER);
+        let legend = [["≤ 22 kW", "#74c476"], ["≤ 50 kW", "#31a354"], ["> 50 kW", "#006d2c"]];
+        let offset = 1.5;
+        for (let [text, color] of legend) {
+            p.noStroke(); p.fill(color);
+            p.rect(0.10 * p.width, offset * 0.10 * p.height, 0.10 * p.width, 0.10 * p.height);
+            p.noStroke(); p.fill(0); 
+            p.text(text, 3 * 0.10 * p.width, (offset + 0.5) * 0.10 * p.height);
+            offset += 1;
+        }
+    }
+}
+
+function sketchLegendVoronoiOperator(p) {
+    p.setup = function () {
+        const legendTag = document.getElementById("legend");
+        p.createCanvas(legendTag.offsetWidth , legendTag.offsetHeight);
+        p.noLoop();
+    }
+    
+    p.windowResized = function() {
+        const legendTag = document.getElementById("legend");
+        p.resizeCanvas(legendTag.offsetWidth , legendTag.offsetHeight);
+    }
+    
+    p.draw = function () {
+        let px = 0.10 * p.width;
+        let dy = 0.025 * p.height;
+        const rectWidth = px;
+        const rectHeight = 0.05 * p.height;
+        p.stroke(0); p.fill(0); p.textSize(20); p.textAlign(p.LEFT, p.TOP);
+        p.text("OPÉRATEUR", px, dy);
+        p.textAlign(p.LEFT, p.CENTER); dy += 0.025 * p.height;
+        data.mainOperators.forEach(([operator, color]) => {
+            dy += 0.05 * p.height;
+            p.noStroke(); p.fill(color+"c8");
+            p.rect(px, dy, rectWidth, rectHeight);
+            p.noStroke(); p.fill(0); 
+            p.text(operator, 2 * px + rectWidth, dy + (rectHeight / 2));
+            dy += 0.025 * p.height;
+        });
+    }
+}

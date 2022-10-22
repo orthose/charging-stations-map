@@ -80,6 +80,11 @@ window.onload = () => {
                     data.computeVoronoi();
                 }
             })
+
+            function removeLegend() {
+                if (legendSketch !== null) legendSketch.remove();
+                document.getElementById("legend").innerHTML = "";
+            }
             
             // Choix de l'onglet de visualisation
             document.getElementById("visu-choice").addEventListener("click", function(event) {
@@ -89,9 +94,8 @@ window.onload = () => {
                     document.getElementsByClassName("selected")[0].className = "";
                     document.getElementById(event.target.id).className = "selected";
                     if (mainSketch !== null) mainSketch.remove();
-                    if (legendSketch !== null) legendSketch.remove();
-                    document.getElementById("legend").innerHTML = "";
                     document.getElementById("visu-tools").innerHTML = "";
+                    removeLegend();
                     
                     // Changement de représentation
                     if (event.target.id === "button-location") {
@@ -142,10 +146,20 @@ window.onload = () => {
                         ["slider-power", "PUISSANCE", (v) => {
                             if (v[0] === 1) document.getElementById("slider-operator").noUiSlider.set(0);
                             showPower = v[0] === 1;
+                            if (showPower) {
+                                removeLegend();
+                                document.getElementById("legend").appendChild(document.createElement("hr"));
+                                legendSketch = new p5(sketchLegendVoronoiPower, "legend");
+                            }
                         }],
                         ["slider-operator", "OPÉRATEUR", (v) => {
                             if (v[0] === 1) document.getElementById("slider-power").noUiSlider.set(0);
                             showOperator = v[0] === 1;
+                            if (showOperator) {
+                                removeLegend();
+                                document.getElementById("legend").appendChild(document.createElement("hr"));
+                                legendSketch = new p5(sketchLegendVoronoiOperator, "legend");
+                            }
                         }]];
                         sliders.forEach(([sliderId, labelName, _]) => {
                             let sliderCheckbox = document.createElement("div");
