@@ -104,12 +104,10 @@ window.onload = () => {
                     }
                     else if (event.target.id === "button-circle") {
                         mainSketch = new p5(sketchCircle, "data");
-                        document.getElementById("legend").appendChild(document.createElement("hr"));
                         legendSketch = new p5(sketchLegendCircle, "legend");
                     }
                     else if (event.target.id === "button-agg") {
                         // Affichage des outils de personnalisation de la visualisation
-                        document.getElementById("visu-tools").appendChild(document.createElement("hr"));
                         [["slider-avg", "MOYENNE", (v) => {showAvg = v[0] === 1;}],
                         ["slider-std", "ÉCART-TYPE", (v) => {showStd = v[0] === 1;}],
                         ["slider-min", "MINIMUM", (v) => {showMin = v[0] === 1;}],
@@ -134,21 +132,18 @@ window.onload = () => {
                         sketchLocationIsLoaded = false;
                         // Calcul des clusters en fonction du niveau de zoom actuel
                         zoomCallback(enforce=true);
-                        document.getElementById("legend").appendChild(document.createElement("hr"));
                         legendSketch = new p5(sketchLegendAgg, "legend");
                     }
                     else if (event.target.id === "button-voronoi") {
                         // Calcul du diagramme de Voronoï
                         data.computeVoronoi();
                         // Affichage des outils de personnalisation de la visualisation
-                        document.getElementById("visu-tools").appendChild(document.createElement("hr"));
                         const sliders = [["slider-station", "STATION", (v) => {showStation = v[0] === 1;}],
                         ["slider-power", "PUISSANCE", (v) => {
                             if (v[0] === 1) document.getElementById("slider-operator").noUiSlider.set(0);
                             showPower = v[0] === 1;
                             if (showPower) {
                                 removeLegend();
-                                document.getElementById("legend").appendChild(document.createElement("hr"));
                                 legendSketch = new p5(sketchLegendVoronoiPower, "legend");
                             }
                         }],
@@ -157,7 +152,6 @@ window.onload = () => {
                             showOperator = v[0] === 1;
                             if (showOperator) {
                                 removeLegend();
-                                document.getElementById("legend").appendChild(document.createElement("hr"));
                                 legendSketch = new p5(sketchLegendVoronoiOperator, "legend");
                             }
                         }]];
